@@ -35,39 +35,6 @@ impl TotalDense {
     pub fn iter(&self) -> impl Iterator<Item = TotalRef<'_>> {
         (0..self.len()).map(|i| self.get(i))
     }
-
-    // Check if a given total ranking is valid, i.e.
-    // 1. len(orders) % elements == 0
-    // 2. Every ranking is total
-    #[cfg(test)]
-    fn valid(&self) -> bool {
-        if self.elements == 0 {
-            self.orders.is_empty()
-        } else if self.orders.len() % self.elements != 0 {
-            false
-        } else {
-            let seen: &mut [bool] = &mut vec![false; self.elements];
-            for i in 0..self.len() {
-                seen.fill(false);
-                for j in 0..self.elements {
-                    let order = self.orders[i * self.elements + j];
-                    if order >= self.elements {
-                        return false;
-                    }
-                    if seen[order] {
-                        return false;
-                    }
-                    seen[order] = true;
-                }
-                for &s in &*seen {
-                    if !s {
-                        return false;
-                    }
-                }
-            }
-            true
-        }
-    }
 }
 
 impl<'a> DenseOrders<'a> for TotalDense {
@@ -148,5 +115,65 @@ impl<'a> DenseOrders<'a> for TotalDense {
             v.shuffle(rng);
             self.orders.extend_from_slice(&v);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use quickcheck::{Arbitrary, Gen};
+
+    use super::*;
+    use crate::tests::std_rng;
+
+    // Check if a given total ranking is valid, i.e.
+    // 1. len(orders) % elements == 0
+    // 2. Every ranking is total
+    fn valid(td: &TotalDense) -> bool {
+        if td.elements == 0 {
+            td.orders.is_empty()
+        } else if td.orders.len() % td.elements != 0 {
+            false
+        } else {
+            let seen: &mut [bool] = &mut vec![false; td.elements];
+            for i in 0..td.len() {
+                seen.fill(false);
+                for j in 0..td.elements {
+                    let order = td.orders[i * td.elements + j];
+                    if order >= td.elements {
+                        return false;
+                    }
+                    if seen[order] {
+                        return false;
+                    }
+                    seen[order] = true;
+                }
+                for &s in &*seen {
+                    if !s {
+                        return false;
+                    }
+                }
+            }
+            true
+        }
+    }
+    impl Arbitrary for TotalDense {
+        fn arbitrary(g: &mut Gen) -> Self {
+            let (mut orders_count, mut elements): (usize, usize) = Arbitrary::arbitrary(g);
+
+            // `Arbitrary` for numbers will generate "problematic" examples such as
+            // `usize::max_value()` and `usize::min_value()` but we'll use them to
+            // allocate vectors so we'll limit them.
+            orders_count = orders_count % g.size();
+            elements = elements % g.size();
+
+            let mut orders = TotalDense::new(elements);
+            orders.generate_uniform(&mut std_rng(g), orders_count);
+            orders
+        }
+    }
+
+    #[quickcheck]
+    fn generate(orders: TotalDense) -> bool {
+        valid(&orders)
     }
 }

@@ -73,21 +73,6 @@ impl SpecificDense {
         (0..self.elements).find(|&i| score[i] > (self.orders.len() / 2))
     }
 
-    // Checks if all invariants of the format are valid, used in debug_asserts and
-    // tests
-    fn valid(&self) -> bool {
-        if self.elements == 0 && !self.orders.is_empty() {
-            return false;
-        }
-
-        for v in &self.orders {
-            if *v >= self.elements {
-                return false;
-            }
-        }
-        true
-    }
-
     /// Set the number of elements to a larger amount.
     pub fn set_elements(&mut self, elements: usize) {
         assert!(self.elements <= elements);
@@ -136,7 +121,6 @@ impl DenseOrders<'_> for SpecificDense {
         }
         self.orders.truncate(j);
         self.elements = new_elements;
-        debug_assert!(self.valid());
         Ok(())
     }
 
@@ -151,7 +135,6 @@ impl DenseOrders<'_> for SpecificDense {
             let i = dist.sample(rng);
             self.orders.push(i);
         }
-        debug_assert!(self.valid());
     }
 }
 
@@ -178,6 +161,20 @@ mod tests {
     use super::*;
     use crate::tests::std_rng;
 
+    // Checks if all invariants of the format are valid, used in tests
+    fn valid(sd: &SpecificDense) -> bool {
+        if sd.elements == 0 && !sd.orders.is_empty() {
+            return false;
+        }
+
+        for v in &sd.orders {
+            if *v >= sd.elements {
+                return false;
+            }
+        }
+        true
+    }
+
     impl Arbitrary for SpecificDense {
         fn arbitrary(g: &mut Gen) -> Self {
             let (mut orders_count, mut elements): (usize, usize) = Arbitrary::arbitrary(g);
@@ -190,9 +187,13 @@ mod tests {
 
             let mut orders = SpecificDense::new(elements);
             orders.generate_uniform(&mut std_rng(g), orders_count);
-            debug_assert!(orders.valid());
             orders
         }
+    }
+
+    #[quickcheck]
+    fn generate(orders: SpecificDense) -> bool {
+        valid(&orders)
     }
 
     #[quickcheck]

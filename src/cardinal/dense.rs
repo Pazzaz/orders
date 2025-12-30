@@ -59,25 +59,6 @@ impl CardinalDense {
         self.elements
     }
 
-    #[cfg(test)]
-    pub(crate) fn valid(&self) -> bool {
-        if self.elements == 0 {
-            self.orders.is_empty()
-        } else if self.orders.len() % self.elements != 0 {
-            false
-        } else {
-            for i in 0..self.len() {
-                for j in 0..self.elements {
-                    let v = self.orders[self.elements * i + j];
-                    if v < self.min || v > self.max {
-                        return false;
-                    }
-                }
-            }
-            true
-        }
-    }
-
     /// Multiply each order score with constant `a`, changing the `min` and
     /// `max` score.
     pub fn map_mul(&mut self, a: usize) -> Result<(), MapError> {
@@ -341,6 +322,24 @@ mod tests {
     use super::*;
     use crate::tests::std_rng;
 
+    fn valid(cd: &CardinalDense) -> bool {
+        if cd.elements == 0 {
+            cd.orders.is_empty()
+        } else if cd.orders.len() % cd.elements != 0 {
+            false
+        } else {
+            for i in 0..cd.len() {
+                for j in 0..cd.elements {
+                    let v = cd.orders[cd.elements * i + j];
+                    if v < cd.min || v > cd.max {
+                        return false;
+                    }
+                }
+            }
+            true
+        }
+    }
+
     impl Arbitrary for CardinalDense {
         fn arbitrary(g: &mut Gen) -> Self {
             let (mut orders_count, mut elements, mut min, mut max): (usize, usize, usize, usize) =
@@ -362,6 +361,11 @@ mod tests {
             orders.generate_uniform(&mut std_rng(g), orders_count);
             orders
         }
+    }
+
+    #[quickcheck]
+    fn generate(orders: CardinalDense) -> bool {
+        valid(&orders)
     }
 
     #[quickcheck]

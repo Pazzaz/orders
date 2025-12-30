@@ -37,11 +37,6 @@ impl BinaryDense {
         BinaryDense { orders, elements }
     }
 
-    #[cfg(test)]
-    pub(crate) fn valid(&self) -> bool {
-        self.elements == 0 && self.orders.is_empty() || self.orders.len() % self.elements == 0
-    }
-
     /// Sample and add `new_orders` new orders, where each elements has a
     /// chance of `p` to be chosen, where 0.0 <= `p` <= 1.0
     pub fn bernoulli<R: Rng>(data: &mut Self, rng: &mut R, new_orders: usize, p: f64) {
@@ -144,6 +139,10 @@ mod tests {
     use super::*;
     use crate::tests::std_rng;
 
+    fn valid(bd: &BinaryDense) -> bool {
+        bd.elements == 0 && bd.orders.is_empty() || bd.orders.len() % bd.elements == 0
+    }
+
     impl Arbitrary for BinaryDense {
         fn arbitrary(g: &mut Gen) -> Self {
             let (mut orders_count, mut elements): (usize, usize) = Arbitrary::arbitrary(g);
@@ -156,9 +155,13 @@ mod tests {
 
             let mut orders = BinaryDense::new(elements);
             orders.generate_uniform(&mut std_rng(g), orders_count);
-            debug_assert!(orders.valid());
             orders
         }
+    }
+
+    #[quickcheck]
+    fn arbitrary(orders: BinaryDense) -> bool {
+        valid(&orders)
     }
 
     #[quickcheck]

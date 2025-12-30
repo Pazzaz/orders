@@ -113,7 +113,7 @@ mod tests {
     use quickcheck::{Arbitrary, Gen};
 
     use super::*;
-    use crate::tests::std_rng;
+    use crate::{partial_order::tests::valid, tests::std_rng};
 
     impl Arbitrary for Chain {
         fn arbitrary(g: &mut Gen) -> Self {
@@ -134,13 +134,13 @@ mod tests {
     #[quickcheck]
     fn as_partial(b: Chain) -> bool {
         let po = b.to_partial();
-        po.valid()
+        valid(&po)
     }
 
     #[quickcheck]
     fn as_partial_correct(b: Chain) -> bool {
         let po = b.clone().to_partial();
-        if !po.valid() {
+        if !valid(&po) {
             return false;
         }
         for (i, vi) in b.order.iter().enumerate() {
@@ -177,7 +177,7 @@ mod tests {
                 }
             }
         }
-        po.valid()
+        valid(&po)
     }
 
     #[quickcheck]

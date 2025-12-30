@@ -77,35 +77,6 @@ impl TiedIDense {
         (0..self.len()).map(|i| self.get(i))
     }
 
-    /// Returns true if this struct is in a valid state, used for debugging.
-    #[cfg(test)]
-    pub(crate) fn valid(&self) -> bool {
-        let mut orders_len = 0;
-        let mut ties_len = 0;
-        for v in self.iter() {
-            let len = v.len();
-            if len == 0 {
-                return false;
-            }
-            orders_len += len;
-            ties_len += len - 1;
-        }
-        if orders_len != self.orders.len() || ties_len != self.ties.len() {
-            return false;
-        }
-        let mut seen = vec![false; self.elements];
-        for order in self.iter() {
-            seen.fill(false);
-            for &i in order.order() {
-                if i >= self.elements || seen[i] {
-                    return false;
-                }
-                seen[i] = true;
-            }
-        }
-        true
-    }
-
     // Increase the number of elements to `n`. Panics if `n < self.elements`
     pub fn set_elements(&mut self, n: usize) {
         debug_assert!(n >= self.elements);
@@ -389,6 +360,34 @@ mod tests {
     use super::*;
     use crate::tests::std_rng;
 
+    /// Returns true if this struct is in a valid state, used for debugging.
+    fn valid(td: &TiedIDense) -> bool {
+        let mut orders_len = 0;
+        let mut ties_len = 0;
+        for v in td.iter() {
+            let len = v.len();
+            if len == 0 {
+                return false;
+            }
+            orders_len += len;
+            ties_len += len - 1;
+        }
+        if orders_len != td.orders.len() || ties_len != td.ties.len() {
+            return false;
+        }
+        let mut seen = vec![false; td.elements];
+        for order in td.iter() {
+            seen.fill(false);
+            for &i in order.order() {
+                if i >= td.elements || seen[i] {
+                    return false;
+                }
+                seen[i] = true;
+            }
+        }
+        true
+    }
+
     impl Arbitrary for TiedIDense {
         fn arbitrary(g: &mut Gen) -> Self {
             let (mut orders_count, mut elements): (usize, usize) = Arbitrary::arbitrary(g);
@@ -406,8 +405,8 @@ mod tests {
     }
 
     #[quickcheck]
-    fn arbitrary(orders: TiedIDense) -> bool {
-        orders.valid()
+    fn generate(orders: TiedIDense) -> bool {
+        valid(&orders)
     }
 
     #[quickcheck]

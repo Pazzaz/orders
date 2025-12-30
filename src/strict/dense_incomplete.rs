@@ -43,32 +43,6 @@ impl ChainDense {
         self.elements
     }
 
-    /// Returns true if this struct is in a valid state, used for debugging.
-    #[cfg(test)]
-    fn valid(&self) -> bool {
-        let mut seen = vec![false; self.elements];
-        for v in self.iter() {
-            seen.fill(false);
-            for &i in v.order {
-                if i >= self.elements || seen[i] {
-                    return false;
-                }
-                seen[i] = true;
-            }
-        }
-        for &o in &self.order_end {
-            if o > self.orders.len() {
-                return false;
-            }
-        }
-        for o in self.order_end.windows(2) {
-            if o[0] > o[1] {
-                return false;
-            }
-        }
-        true
-    }
-
     pub fn iter(&self) -> impl Iterator<Item = ChainRef<'_>> {
         (0..self.len()).map(|i| self.get(i))
     }
@@ -142,6 +116,31 @@ mod tests {
     use super::*;
     use crate::{OrderOwned, OrderRef, strict::Chain, tests::std_rng};
 
+    /// Returns true if this struct is in a valid state, used for debugging.
+    fn valid(cd: &ChainDense) -> bool {
+        let mut seen = vec![false; cd.elements];
+        for v in cd.iter() {
+            seen.fill(false);
+            for &i in v.order {
+                if i >= cd.elements || seen[i] {
+                    return false;
+                }
+                seen[i] = true;
+            }
+        }
+        for &o in &cd.order_end {
+            if o > cd.orders.len() {
+                return false;
+            }
+        }
+        for o in cd.order_end.windows(2) {
+            if o[0] > o[1] {
+                return false;
+            }
+        }
+        true
+    }
+
     impl Arbitrary for ChainDense {
         fn arbitrary(g: &mut Gen) -> Self {
             let (mut orders_count, mut elements): (usize, usize) = Arbitrary::arbitrary(g);
@@ -159,8 +158,8 @@ mod tests {
     }
 
     #[quickcheck]
-    fn arbitrary(orders: ChainDense) -> bool {
-        orders.valid()
+    fn generate(orders: ChainDense) -> bool {
+        valid(&orders)
     }
 
     #[quickcheck]

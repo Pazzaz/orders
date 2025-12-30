@@ -129,7 +129,7 @@ mod tests {
     use quickcheck::{Arbitrary, Gen};
 
     use super::*;
-    use crate::tests::std_rng;
+    use crate::{partial_order::tests::valid, tests::std_rng};
 
     impl Arbitrary for Cardinal {
         fn arbitrary(g: &mut Gen) -> Self {
@@ -152,7 +152,7 @@ mod tests {
     #[quickcheck]
     fn as_partial(b: Cardinal) -> bool {
         let po = b.to_partial();
-        po.valid()
+        valid(&po)
     }
 
     #[quickcheck]
@@ -174,7 +174,7 @@ mod tests {
                 }
             }
         }
-        po.valid()
+        valid(&po)
     }
 
     #[quickcheck]

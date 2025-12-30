@@ -89,9 +89,7 @@ impl Order for Binary {
         // SAFETY: There won't be any transitive relations between elements, and we
         // iterated through every pair of elements, so we've set every
         // relation.
-        let out = unsafe { tmp.finish_unchecked() };
-        debug_assert!(out.valid());
-        out
+        unsafe { tmp.finish_unchecked() }
     }
 }
 
@@ -118,7 +116,7 @@ mod tests {
     use quickcheck::{Arbitrary, Gen};
 
     use super::*;
-    use crate::tests::std_rng;
+    use crate::{partial_order::tests::valid, tests::std_rng};
 
     impl Arbitrary for Binary {
         fn arbitrary(g: &mut Gen) -> Self {
@@ -139,7 +137,7 @@ mod tests {
     #[quickcheck]
     fn as_partial(b: Binary) -> bool {
         let po = b.to_partial();
-        po.valid()
+        valid(&po)
     }
 
     #[quickcheck]
@@ -161,7 +159,7 @@ mod tests {
                 }
             }
         }
-        po.valid()
+        valid(&po)
     }
 
     #[quickcheck]

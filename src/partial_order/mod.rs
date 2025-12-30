@@ -23,10 +23,6 @@ impl Clone for PartialOrder {
 }
 
 impl PartialOrder {
-    pub(crate) fn valid(&self) -> bool {
-        self.matrix.is_partial_order()
-    }
-
     pub fn new(order: Vec<bool>, elements: usize) -> Self {
         let matrix = MatrixBool::from_vec(order, elements);
         assert!(matrix.is_partial_order());
@@ -299,13 +295,17 @@ impl PartialOrderManual {
 }
 
 #[cfg(test)]
-mod tests {
+pub mod tests {
     use std::cmp::Ordering;
 
     use quickcheck::Arbitrary;
 
     use super::{PartialOrder, PartialOrderManual};
     use crate::Order;
+
+    pub fn valid(po: &PartialOrder) -> bool {
+        po.matrix.is_partial_order()
+    }
 
     impl Arbitrary for PartialOrder {
         fn arbitrary(g: &mut quickcheck::Gen) -> Self {
@@ -331,6 +331,11 @@ mod tests {
         }
     }
 
+    #[quickcheck]
+    fn generate(po: PartialOrder) -> bool {
+        valid(&po)
+    }
+
     #[test]
     fn empty_equal() {
         let po = PartialOrder::new_empty(123);
@@ -343,31 +348,26 @@ mod tests {
     }
 
     #[quickcheck]
-    fn po_valid_gen(po: PartialOrder) -> bool {
-        po.valid()
-    }
-
-    #[quickcheck]
     fn po_add_combine(mut po1: PartialOrder, mut po2: PartialOrder) -> bool {
         let l1 = po1.elements();
         let l2 = po2.elements();
         match l1.cmp(&l2) {
             Ordering::Less => {
                 po1.add(l2 - l1);
-                if !po1.valid() {
+                if !valid(&po1) {
                     return false;
                 }
             }
             Ordering::Greater => {
                 po2.add(l1 - l2);
-                if !po2.valid() {
+                if !valid(&po2) {
                     return false;
                 }
             }
             Ordering::Equal => {}
         }
         let po3 = PartialOrder::combine(&po1, &po2);
-        po3.valid()
+        valid(&po3)
     }
 
     #[quickcheck]
@@ -385,11 +385,11 @@ mod tests {
         let mut poc = po.clone();
         let a = x % poc.elements();
         poc.add(a);
-        if !poc.valid() {
+        if !valid(&poc) {
             return false;
         }
         poc.remove(a);
-        poc.valid()
+        valid(&poc)
     }
 
     // FIXME

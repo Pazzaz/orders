@@ -43,30 +43,6 @@ impl TiedDense {
         (0..self.len()).map(|i| self.get(i))
     }
 
-    /// Returns true if this struct is in a valid state, used for debugging.
-    #[cfg(test)]
-    fn valid(&self) -> bool {
-        if self.orders.len() != self.len() * self.elements
-            || self.ties.len() != self.len() * (self.elements - 1)
-        {
-            return false;
-        }
-        let mut seen = vec![false; self.elements];
-        for order in self.iter() {
-            seen.fill(false);
-            if order.order().len() != self.elements || order.tied().len() != self.elements - 1 {
-                return false;
-            }
-            for &i in order.order() {
-                if i >= self.elements || seen[i] {
-                    return false;
-                }
-                seen[i] = true;
-            }
-        }
-        true
-    }
-
     /// Pick a winning element from each ordering, randomly from their highest
     /// ranked (tied) elements.
     pub fn to_specific_using<R: rand::Rng>(self, rng: &mut R) -> SpecificDense {
@@ -261,5 +237,58 @@ impl<'a> FromIterator<TiedRef<'a>> for TiedDense {
         } else {
             TiedDense::new(0)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use quickcheck::{Arbitrary, Gen};
+
+    use super::*;
+    use crate::tests::std_rng;
+
+    /// Returns true if this struct is in a valid state, used for debugging.
+    fn valid(td: &TiedDense) -> bool {
+        if td.orders.len() != td.len() * td.elements
+            || td.ties.len() != td.len() * (td.elements - 1)
+        {
+            return false;
+        }
+        let mut seen = vec![false; td.elements];
+        for order in td.iter() {
+            seen.fill(false);
+            if order.order().len() != td.elements || order.tied().len() != td.elements - 1 {
+                return false;
+            }
+            for &i in order.order() {
+                if i >= td.elements || seen[i] {
+                    return false;
+                }
+                seen[i] = true;
+            }
+        }
+        true
+    }
+
+    impl Arbitrary for TiedDense {
+        fn arbitrary(g: &mut Gen) -> Self {
+            let (mut orders_count, mut elements): (usize, usize) = Arbitrary::arbitrary(g);
+
+            // `Arbitrary` for numbers will generate "problematic" examples such as
+            // `usize::max_value()` and `usize::min_value()` but we'll use them to
+            // allocate vectors so we'll limit them.
+            elements = elements % g.size();
+            orders_count = if elements != 0 { orders_count % g.size() } else { 0 };
+
+            let mut orders = TiedDense::new(elements);
+            orders.generate_uniform(&mut std_rng(g), orders_count);
+            assert!(valid(&orders));
+            orders
+        }
+    }
+
+    #[quickcheck]
+    fn generate(orders: TiedDense) -> bool {
+        valid(&orders)
     }
 }
