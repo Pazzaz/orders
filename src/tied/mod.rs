@@ -221,3 +221,52 @@ impl<'a> From<&TiedRef<'a>> for TiedIRef<'a> {
         TiedIRef::new(value.elements(), value.order(), value.tied())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use quickcheck::{Arbitrary, Gen};
+
+    use super::*;
+    use crate::tests::std_rng;
+
+    fn valid(td: &Tied) -> bool {
+        if td.order.len().saturating_sub(1) != td.tied.len() {
+            return false;
+        }
+
+        // Each element is ordered once
+        let mut seen = vec![false; td.len()];
+        for i in &td.order {
+            match seen.get_mut(*i) {
+                Some(v) => {
+                    if *v {
+                        return false;
+                    } else {
+                        *v = true;
+                    }
+                }
+                None => return false,
+            }
+        }
+
+        true
+    }
+
+    impl Arbitrary for Tied {
+        fn arbitrary(g: &mut Gen) -> Self {
+            let mut elements: usize = Arbitrary::arbitrary(g);
+
+            // `Arbitrary` for numbers will generate "problematic" examples such as
+            // `usize::max_value()` and `usize::min_value()` but we'll use them to
+            // allocate vectors so we'll limit them.
+            elements = elements % g.size();
+
+            Tied::random(&mut std_rng(g), elements)
+        }
+    }
+
+    #[quickcheck]
+    fn generate(orders: Tied) -> bool {
+        valid(&orders)
+    }
+}
