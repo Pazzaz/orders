@@ -250,7 +250,7 @@ mod tests {
     /// Returns true if this struct is in a valid state, used for debugging.
     fn valid(td: &TiedDense) -> bool {
         if td.orders.len() != td.len() * td.elements
-            || td.ties.len() != td.len() * (td.elements - 1)
+            || td.ties.len() != td.len() * td.elements.saturating_sub(1)
         {
             return false;
         }
