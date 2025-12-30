@@ -15,7 +15,10 @@ use split_ref::SplitRef;
 pub use tied_incomplete::*;
 pub use tied_incomplete_ref::*;
 
-use crate::{Order, OrderOwned, OrderRef, cardinal::CardinalRef, unique_and_bounded};
+use crate::{
+    Order, OrderOwned, OrderRef, cardinal::CardinalRef, partial_order::PartialOrderManual,
+    unique_and_bounded,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Tied {
@@ -124,7 +127,20 @@ impl Order for Tied {
     }
 
     fn to_partial(self) -> crate::partial_order::PartialOrder {
-        todo!()
+        let mut manual = PartialOrderManual::new(self.elements());
+        let mut seen: Vec<usize> = Vec::with_capacity(self.len());
+        for group in self.as_ref().iter_groups() {
+            for i in group {
+                for j in &seen {
+                    manual.set(*i, *j);
+                }
+            }
+            seen.extend_from_slice(group);
+        }
+
+        // SAFETY: Each element has no relation to any element in their tied group, but
+        // is smaller than every element seen before.
+        unsafe { manual.finish_unchecked() }
     }
 }
 
