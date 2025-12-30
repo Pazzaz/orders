@@ -227,7 +227,7 @@ mod tests {
     use quickcheck::{Arbitrary, Gen};
 
     use super::*;
-    use crate::tests::std_rng;
+    use crate::{partial_order, tests::std_rng};
 
     fn valid(td: &Tied) -> bool {
         if td.order.len().saturating_sub(1) != td.tied.len() {
@@ -268,5 +268,10 @@ mod tests {
     #[quickcheck]
     fn generate(orders: Tied) -> bool {
         valid(&orders)
+    }
+
+    #[quickcheck]
+    fn partial(orders: Tied) -> bool {
+        partial_order::tests::valid(&orders.to_partial())
     }
 }
