@@ -56,9 +56,8 @@ impl<'a> TiedIRef<'a> {
         }
     }
 
-    pub fn increase_elements(&mut self, elements: usize) {
-        debug_assert!(self.elements <= elements);
-        self.elements = elements;
+    pub fn add_elements(&mut self, n: usize) {
+        self.elements = self.elements.checked_add(n).expect("Too many elements");
     }
 
     /// Return an empty ranking of zero elements.
@@ -69,7 +68,7 @@ impl<'a> TiedIRef<'a> {
     /// Return an empty ranking of `elements`.
     pub fn new_zero_c(elements: usize) -> Self {
         let mut rank = TiedIRef::new_zero();
-        rank.increase_elements(elements);
+        rank.add_elements(elements);
         rank
     }
 

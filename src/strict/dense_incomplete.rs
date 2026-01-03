@@ -70,7 +70,9 @@ impl<'a> DenseOrders<'a> for ChainDense {
     }
 
     fn add(&mut self, v: Self::Order) -> Result<(), &'static str> {
-        assert!(v.elements == self.elements);
+        if v.elements != self.elements {
+            return Err("New order must have as many elements as orders in the collection do");
+        }
         self.orders.reserve(v.len());
         let start = self.order_end.last().unwrap_or(&0);
         self.order_end.push(*start + v.len());

@@ -101,7 +101,9 @@ impl<'a> DenseOrders<'a> for TiedDense {
     }
 
     fn remove_element(&mut self, target: usize) -> Result<(), &'static str> {
-        assert!(target < self.elements);
+        if self.elements <= target {
+            return Err("Element not in collection");
+        }
         if self.elements == 1 {
             self.orders.clear();
             self.ties.clear();
@@ -230,7 +232,6 @@ impl<'a> FromIterator<TiedRef<'a>> for TiedDense {
             let mut out = TiedDense::new(elements);
             out.add(first_value).unwrap();
             for v in ii {
-                assert!(v.elements() == elements);
                 out.add(v).unwrap();
             }
             out
@@ -282,7 +283,6 @@ mod tests {
 
             let mut orders = TiedDense::new(elements);
             orders.generate_uniform(&mut std_rng(g), orders_count);
-            assert!(valid(&orders));
             orders
         }
     }

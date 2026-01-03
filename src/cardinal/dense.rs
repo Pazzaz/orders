@@ -136,11 +136,11 @@ impl CardinalDense {
     /// Turn every order into a binary order, where every value larger or equal
     /// to `n` becomes an approval.
     ///
-    /// # Panics
-    ///
-    /// Will panic if `n` is not contained in `self.min..=self.max`.
+    /// Returns an error if `n` is not contained in `self.min..=self.max`.
     pub fn to_binary_cutoff(&self, n: usize) -> Result<BinaryDense, &'static str> {
-        debug_assert!(self.min <= n && n <= self.max);
+        if !(self.min <= n && n <= self.max) {
+            return Err("Element not in cardinal range");
+        }
         let mut binary_orders: Vec<bool> = Vec::new();
         binary_orders
             .try_reserve_exact(self.elements * self.len())

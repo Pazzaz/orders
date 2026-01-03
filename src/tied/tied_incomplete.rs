@@ -99,9 +99,8 @@ impl<'a> TiedI {
         self.len() == 0
     }
 
-    pub fn increase_elements(&mut self, elements: usize) {
-        assert!(self.elements <= elements);
-        self.elements = elements;
+    pub fn add_elements(&mut self, n: usize) {
+        self.elements = self.elements.checked_add(n).expect("Too many elements");
     }
 
     pub fn single(elements: usize, n: usize) -> TiedI {

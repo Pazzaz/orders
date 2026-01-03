@@ -249,8 +249,12 @@ impl<'a> DenseOrders<'a> for TiedIDense {
     }
 
     fn add(&mut self, order: TiedIRef) -> Result<(), &'static str> {
-        assert!(order.elements() == self.elements);
-        assert!(!order.is_empty());
+        if order.elements() != self.elements {
+            return Err("New order must have as many elements as orders in the collection do");
+        }
+        if order.is_empty() {
+            return Err("Can't add empty order");
+        }
         self.orders.reserve(order.len());
         self.ties.reserve(order.len() - 1);
         self.order_end.reserve(1);
@@ -340,7 +344,6 @@ impl<'a> FromIterator<TiedIRef<'a>> for TiedIDense {
             let mut new = TiedIDense::new(elements);
             new.add(first_v).unwrap();
             for v in ii {
-                assert!(v.elements() == elements);
                 new.add(v).unwrap();
             }
             new
