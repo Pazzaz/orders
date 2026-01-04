@@ -332,10 +332,9 @@ impl From<TiedDense> for TiedIDense {
     }
 }
 
-impl<'a> FromIterator<TiedIRef<'a>> for TiedIDense {
-    /// # Panics
-    ///
-    /// Panics if any orders have different numbers of elements.
+impl<'a> FromIterator<TiedIRef<'a>> for Option<TiedIDense> {
+    /// Returns [`None`][Option::None] if any orders have different numbers of
+    /// elements, or the iterator is empty.
     fn from_iter<T: IntoIterator<Item = TiedIRef<'a>>>(iter: T) -> Self {
         let mut ii = iter.into_iter();
         if let Some(first_v) = ii.next() {
@@ -343,11 +342,14 @@ impl<'a> FromIterator<TiedIRef<'a>> for TiedIDense {
             let mut new = TiedIDense::new(elements);
             new.add(first_v).unwrap();
             for v in ii {
+                if v.elements != elements {
+                    return None;
+                }
                 new.add(v).unwrap();
             }
-            new
+            Some(new)
         } else {
-            TiedIDense::new(0)
+            return None;
         }
     }
 }
@@ -419,13 +421,17 @@ mod tests {
         }
         let n = n % old_elements;
         let mut a = orders;
-        let b: Vec<TiedI> = a.iter().map(|x| x.owned().remove(n)).collect();
+        let b: TiedIDense = a
+            .iter()
+            .map(|x| x.owned().remove(n))
+            .collect::<Vec<TiedI>>()
+            .iter()
+            .filter_map(|x| if x.is_empty() { None } else { Some(x.as_ref()) })
+            .collect::<Option<TiedIDense>>()
+            .unwrap_or(TiedIDense::new(old_elements - 1));
         a.remove_element(n).unwrap();
-        let mut res: TiedIDense =
-            b.iter().filter_map(|x| if x.is_empty() { None } else { Some(x.as_ref()) }).collect();
 
-        res.add_elements((old_elements - 1) - res.elements);
-        a == res
+        a == b
     }
 
     // These three benches compare different ways to do "generate_uniform".
