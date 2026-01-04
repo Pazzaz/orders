@@ -223,8 +223,9 @@ impl From<TotalDense> for TiedDense {
     }
 }
 
-impl<'a> FromIterator<TiedRef<'a>> for TiedDense {
-    /// Panics if any orders have a different number of elements.
+impl<'a> FromIterator<TiedRef<'a>> for Option<TiedDense> {
+    /// Returns [`None`][Option::None] if any orders have a different number of
+    /// elements, or the iterator is empty.
     fn from_iter<T: IntoIterator<Item = TiedRef<'a>>>(iter: T) -> Self {
         let mut ii = iter.into_iter();
         if let Some(first_value) = ii.next() {
@@ -232,11 +233,14 @@ impl<'a> FromIterator<TiedRef<'a>> for TiedDense {
             let mut out = TiedDense::new(elements);
             out.add(first_value).unwrap();
             for v in ii {
+                if v.elements() != elements {
+                    return None;
+                }
                 out.add(v).unwrap();
             }
-            out
+            Some(out)
         } else {
-            TiedDense::new(0)
+            return None;
         }
     }
 }
@@ -290,5 +294,12 @@ mod tests {
     #[quickcheck]
     fn generate(orders: TiedDense) -> bool {
         valid(&orders)
+    }
+
+    #[test]
+    fn collect_empty() {
+        let v: Vec<TiedRef> = Vec::new();
+        let res: Option<TiedDense> = v.into_iter().collect();
+        assert!(res.is_none());
     }
 }
