@@ -78,9 +78,8 @@ impl TiedIDense {
     }
 
     // Increase the number of elements to `n`. Panics if `n < self.elements`
-    pub fn set_elements(&mut self, n: usize) {
-        debug_assert!(n >= self.elements);
-        self.elements = n;
+    pub fn add_elements(&mut self, n: usize) {
+        self.elements = self.elements.checked_add(n).expect("Too many elements");
     }
 
     /// If an order ranks element `n`, then add a tie with a new element,
@@ -424,7 +423,8 @@ mod tests {
         a.remove_element(n).unwrap();
         let mut res: TiedIDense =
             b.iter().filter_map(|x| if x.is_empty() { None } else { Some(x.as_ref()) }).collect();
-        res.set_elements(old_elements - 1);
+
+        res.add_elements((old_elements - 1) - res.elements);
         a == res
     }
 

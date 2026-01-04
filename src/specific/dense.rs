@@ -74,9 +74,8 @@ impl SpecificDense {
     }
 
     /// Set the number of elements to a larger amount.
-    pub fn set_elements(&mut self, elements: usize) {
-        assert!(self.elements <= elements);
-        self.elements = elements;
+    pub fn add_elements(&mut self, n: usize) {
+        self.elements = self.elements.checked_add(n).expect("Too many elements");
     }
 }
 
@@ -198,9 +197,7 @@ mod tests {
 
     #[quickcheck]
     fn majority_bound(orders: SpecificDense) -> bool {
-        let major = orders.majority();
-        eprintln!("{:?}", major);
-        match major {
+        match orders.majority() {
             Some(i) => i < orders.elements,
             None => true,
         }

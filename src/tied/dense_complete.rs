@@ -50,7 +50,7 @@ impl TiedDense {
         let mut orders: SpecificDense =
             self.iter().map(|v| *v.winners().choose(rng).unwrap()).collect();
 
-        orders.set_elements(elements);
+        orders.add_elements(orders.elements - elements);
         orders
     }
 }
