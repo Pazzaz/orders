@@ -17,9 +17,9 @@
 //! There are also variants of the orders which don't store all elements. Stored
 //! elements are considered higher in the poset than non-stored elements.
 //!
-//! There are also custom collections of orders. These are more effective than
-//! just using a [`Vec`] of orders, as the orders themselves often contain a
-//! `Vec`. By using custom containers it's possible to store them in a more
+//! There are also custom [`collections`] of orders. These are more effective
+//! than just using a [`Vec`] of orders, as the orders themselves often contain
+//! a `Vec`. By using custom containers it's possible to store them in a more
 //! compact form and avoid nested containers.
 
 #![feature(test)]
@@ -31,12 +31,11 @@ extern crate quickcheck;
 #[macro_use(quickcheck)]
 extern crate quickcheck_macros;
 
-pub mod binary;
-pub mod cardinal;
+pub mod collections;
+mod orders;
 pub mod partial_order;
-pub mod specific;
-pub mod strict;
-pub mod tied;
+
+pub use orders::*;
 
 fn pairwise_lt(v: &[usize]) -> bool {
     if v.len() >= 2 {
