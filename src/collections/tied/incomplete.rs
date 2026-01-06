@@ -1,3 +1,5 @@
+use std::num::NonZeroUsize;
+
 use rand::{
     distr::{Distribution, Uniform},
     seq::{IndexedRandom, SliceRandom},
@@ -7,6 +9,7 @@ use crate::{
     DenseOrders, add_bool,
     cardinal::CardinalRef,
     collections::{CardinalDense, ChainDense, SpecificDense, TiedDense},
+    specific::Specific,
     tied::{Tied, TiedI, TiedIRef},
 };
 
@@ -214,7 +217,8 @@ impl TiedIDense {
         for order in self.iter() {
             let winners = order.winners();
             let winner = winners.choose(rng).unwrap();
-            out.add(*winner).unwrap();
+            let specific = Specific::new(*winner, self.elements);
+            out.add(specific).unwrap();
         }
         Ok(out)
     }

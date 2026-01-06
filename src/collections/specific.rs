@@ -3,7 +3,7 @@ use rand::{
     distr::{Distribution, Uniform},
 };
 
-use crate::{DenseOrders, pairwise_lt};
+use crate::{DenseOrders, Order, pairwise_lt, specific::Specific};
 
 /// A collection of elements.
 ///
@@ -80,7 +80,7 @@ impl SpecificDense {
 }
 
 impl DenseOrders<'_> for SpecificDense {
-    type Order = usize;
+    type Order = Specific;
     fn elements(&self) -> usize {
         self.elements
     }
@@ -90,13 +90,13 @@ impl DenseOrders<'_> for SpecificDense {
     }
 
     fn try_get(&self, i: usize) -> Option<Self::Order> {
-        self.orders.get(i).copied()
+        self.orders.get(i).map(|x| Specific::new(*x, self.elements))
     }
 
     fn add(&mut self, v: Self::Order) -> Result<(), &'static str> {
-        if v < self.elements {
+        if v.elements() == self.elements {
             self.orders.try_reserve(1).or(Err("Could not add order"))?;
-            self.orders.push(v);
+            self.orders.push(v.value);
             Ok(())
         } else {
             Err("Invalid element")
