@@ -7,7 +7,7 @@ use rand::{
 
 use crate::{
     DenseOrders,
-    collections::{CardinalDense, SpecificDense, TotalDense},
+    collections::{AddError, CardinalDense, SpecificDense, TotalDense},
     orders::tied::TiedRef,
 };
 
@@ -58,11 +58,6 @@ impl TiedDense {
     }
 }
 
-enum AddError {
-    Elements,
-    Alloc,
-}
-
 impl<'a> DenseOrders<'a> for TiedDense {
     type Order = TiedRef<'a>;
 
@@ -74,23 +69,19 @@ impl<'a> DenseOrders<'a> for TiedDense {
         if self.elements == 0 { 0 } else { self.orders.len() / self.elements }
     }
 
-    fn add(&mut self, v: Self::Order) -> Result<(), &'static str> {
-        // TODO: Make this into the function
-        fn inner<'a>(s: &mut TiedDense, v: TiedRef<'a>) -> Result<(), AddError> {
-            let order = v.order();
-            let tie = v.tied();
-            if order.len() != s.elements && s.elements != 0 {
-                return Err(AddError::Elements);
-            }
-
-            s.orders.try_reserve(order.len() * s.elements).map_err(|_| AddError::Alloc)?;
-            s.ties.try_reserve(tie.len() * (s.elements - 1)).map_err(|_| AddError::Alloc)?;
-
-            s.orders.extend_from_slice(order);
-            s.ties.extend_from_slice(tie);
-            Ok(())
+    fn add(&mut self, v: Self::Order) -> Result<(), AddError> {
+        let order = v.order();
+        let tie = v.tied();
+        if order.len() != self.elements && self.elements != 0 {
+            return Err(AddError::Elements);
         }
-        inner(self, v).map_err(|_| "Could not add")
+
+        self.orders.try_reserve(order.len() * self.elements).map_err(|_| AddError::Alloc)?;
+        self.ties.try_reserve(tie.len() * (self.elements - 1)).map_err(|_| AddError::Alloc)?;
+
+        self.orders.extend_from_slice(order);
+        self.ties.extend_from_slice(tie);
+        Ok(())
     }
 
     fn try_get(&'a self, i: usize) -> Option<Self::Order> {

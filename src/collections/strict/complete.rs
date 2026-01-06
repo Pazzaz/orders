@@ -2,7 +2,7 @@
 // TotalRanking. Should they be combined somehow?
 use rand::seq::SliceRandom;
 
-use crate::{DenseOrders, get_order, pairwise_lt, strict::TotalRef};
+use crate::{DenseOrders, collections::AddError, get_order, pairwise_lt, strict::TotalRef};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct TotalDense {
@@ -21,11 +21,6 @@ impl Clone for TotalDense {
     }
 }
 
-pub enum AddError {
-    Alloc,
-    Elements,
-}
-
 impl TotalDense {
     pub fn new(elements: usize) -> Self {
         TotalDense { orders: Vec::new(), elements }
@@ -38,6 +33,7 @@ impl TotalDense {
 
 impl<'a> DenseOrders<'a> for TotalDense {
     type Order = TotalRef<'a>;
+
     fn elements(&self) -> usize {
         self.elements
     }
@@ -58,19 +54,15 @@ impl<'a> DenseOrders<'a> for TotalDense {
         }
     }
 
-    fn add(&mut self, v: Self::Order) -> Result<(), &'static str> {
-        // TODO: Make this the normal add
-        fn inner(a: &mut TotalDense, v: TotalRef) -> Result<(), AddError> {
-            if v.elements() != a.elements || a.elements == 0 {
-                Err(AddError::Elements)
-            } else if a.orders.try_reserve(a.elements).is_err() {
-                Err(AddError::Alloc)
-            } else {
-                a.orders.extend_from_slice(v.order);
-                Ok(())
-            }
+    fn add(&mut self, v: Self::Order) -> Result<(), AddError> {
+        if v.elements() != self.elements || self.elements == 0 {
+            Err(AddError::Elements)
+        } else if self.orders.try_reserve(self.elements).is_err() {
+            Err(AddError::Alloc)
+        } else {
+            self.orders.extend_from_slice(v.order);
+            Ok(())
         }
-        inner(self, v).map_err(|_| "Could not add order")
     }
 
     fn remove_element(&mut self, target: usize) -> Result<(), &'static str> {

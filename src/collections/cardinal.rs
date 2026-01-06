@@ -5,7 +5,7 @@ use rand::distr::{Distribution, Uniform};
 use crate::{
     DenseOrders,
     cardinal::{Cardinal, CardinalRef},
-    collections::binary::BinaryDense,
+    collections::{AddError, binary::BinaryDense},
     pairwise_lt,
 };
 
@@ -251,6 +251,7 @@ pub enum SumError {
 
 impl<'a> DenseOrders<'a> for CardinalDense {
     type Order = CardinalRef<'a>;
+
     fn elements(&self) -> usize {
         self.elements
     }
@@ -270,8 +271,11 @@ impl<'a> DenseOrders<'a> for CardinalDense {
         }
     }
 
-    fn add(&mut self, v: Self::Order) -> Result<(), &'static str> {
-        self.orders.try_reserve(self.elements).or(Err("Could not add order"))?;
+    fn add(&mut self, v: Self::Order) -> Result<(), AddError> {
+        if v.len() != self.elements() {
+            return Err(AddError::Elements);
+        }
+        self.orders.try_reserve(self.elements).or(Err(AddError::Alloc))?;
         self.orders.extend_from_slice(v.values);
         Ok(())
     }

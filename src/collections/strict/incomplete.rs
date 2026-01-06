@@ -3,7 +3,11 @@ use rand::{
     seq::SliceRandom,
 };
 
-use crate::{DenseOrders, collections::strict::TotalDense, strict::ChainRef};
+use crate::{
+    DenseOrders,
+    collections::{AddError, strict::TotalDense},
+    strict::ChainRef,
+};
 
 /// SOI - Strict Orders - Incomplete List
 ///
@@ -68,9 +72,9 @@ impl<'a> DenseOrders<'a> for ChainDense {
         }
     }
 
-    fn add(&mut self, v: Self::Order) -> Result<(), &'static str> {
+    fn add(&mut self, v: Self::Order) -> Result<(), AddError> {
         if v.elements != self.elements {
-            return Err("New order must have as many elements as orders in the collection do");
+            return Err(AddError::Elements);
         }
         self.orders.reserve(v.len());
         let start = self.order_end.last().unwrap_or(&0);

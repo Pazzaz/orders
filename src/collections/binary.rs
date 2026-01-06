@@ -3,7 +3,12 @@ use rand::{
     distr::{Bernoulli, Distribution},
 };
 
-use crate::{DenseOrders, binary::BinaryRef, collections::CardinalDense, pairwise_lt};
+use crate::{
+    DenseOrders,
+    binary::BinaryRef,
+    collections::{AddError, CardinalDense},
+    pairwise_lt,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct BinaryDense {
@@ -71,6 +76,7 @@ impl TryFrom<&BinaryDense> for CardinalDense {
 
 impl<'a> DenseOrders<'a> for BinaryDense {
     type Order = BinaryRef<'a>;
+
     fn elements(&self) -> usize {
         self.elements
     }
@@ -90,11 +96,11 @@ impl<'a> DenseOrders<'a> for BinaryDense {
         }
     }
 
-    fn add(&mut self, v: Self::Order) -> Result<(), &'static str> {
+    fn add(&mut self, v: Self::Order) -> Result<(), AddError> {
         if v.len() != self.elements {
-            return Err("Order must contains all elements");
+            return Err(AddError::Elements);
         }
-        self.orders.try_reserve(self.elements).or(Err("Could not add order"))?;
+        self.orders.try_reserve(self.elements).or(Err(AddError::Alloc))?;
         self.orders.extend_from_slice(v.values);
         Ok(())
     }

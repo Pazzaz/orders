@@ -126,6 +126,8 @@ use rand::{
     distr::{Distribution, StandardUniform},
 };
 
+use crate::collections::AddError;
+
 // Lifetime needed because `Order` may be a reference which then needs a
 // lifetime
 pub trait DenseOrders<'a> {
@@ -139,7 +141,7 @@ pub trait DenseOrders<'a> {
         self.len() == 0
     }
 
-    fn add(&mut self, v: Self::Order) -> Result<(), &'static str>;
+    fn add(&mut self, v: Self::Order) -> Result<(), AddError>;
 
     fn try_get(&'a self, i: usize) -> Option<Self::Order>;
 

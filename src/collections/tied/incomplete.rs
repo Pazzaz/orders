@@ -1,5 +1,3 @@
-use std::num::NonZeroUsize;
-
 use rand::{
     distr::{Distribution, Uniform},
     seq::{IndexedRandom, SliceRandom},
@@ -8,7 +6,7 @@ use rand::{
 use crate::{
     DenseOrders, add_bool,
     cardinal::CardinalRef,
-    collections::{CardinalDense, ChainDense, SpecificDense, TiedDense},
+    collections::{AddError, CardinalDense, ChainDense, SpecificDense, TiedDense},
     specific::Specific,
     tied::{Tied, TiedI, TiedIRef},
 };
@@ -204,7 +202,7 @@ impl TiedIDense {
             v.clone_from_ref(order);
             v = v.make_complete(false).into();
             v.as_ref().cardinal_high(&mut cardinal_rank, 0, max);
-            cardinal_orders.add(CardinalRef::new(&cardinal_rank))?;
+            cardinal_orders.add(CardinalRef::new(&cardinal_rank)).unwrap();
             cardinal_rank.fill(0);
         }
         Ok(cardinal_orders)
@@ -249,12 +247,12 @@ impl<'a> DenseOrders<'a> for TiedIDense {
         }
     }
 
-    fn add(&mut self, order: TiedIRef) -> Result<(), &'static str> {
+    fn add(&mut self, order: TiedIRef) -> Result<(), AddError> {
         if order.elements() != self.elements {
-            return Err("New order must have as many elements as orders in the collection do");
+            return Err(AddError::Elements);
         }
         if order.is_empty() {
-            return Err("Can't add empty order");
+            return Err(AddError::Elements);
         }
         self.orders.reserve(order.len());
         self.ties.reserve(order.len() - 1);
@@ -278,7 +276,7 @@ impl<'a> DenseOrders<'a> for TiedIDense {
 
             tmp = tmp.remove(n);
             if !tmp.is_empty() {
-                new.add(tmp.as_ref())?;
+                new.add(tmp.as_ref()).unwrap();
             }
         }
         *self = new;
