@@ -4,6 +4,7 @@ pub use super::BinaryRef;
 use crate::{
     Order, OrderOwned,
     partial_order::{PartialOrder, PartialOrderManual},
+    specific::Specific,
 };
 
 #[derive(Debug)]
@@ -76,6 +77,14 @@ impl<'a> OrderOwned<'a> for Binary {
 
     fn as_ref(&'a self) -> Self::Ref {
         BinaryRef { values: &self.values }
+    }
+}
+
+impl From<Specific> for Binary {
+    fn from(value: Specific) -> Self {
+        let mut v = vec![false; value.elements()];
+        v[value.value] = true;
+        Self::new(v)
     }
 }
 
