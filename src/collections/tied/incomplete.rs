@@ -93,7 +93,7 @@ impl TiedIDense {
                 tied.insert(i, true);
             };
             let yeah = TiedI::new(c + 1, new_order, tied);
-            new.add(yeah.as_ref()).unwrap();
+            new.push(yeah.as_ref()).unwrap();
         }
         *self = new;
     }
@@ -201,7 +201,7 @@ impl TiedIDense {
             v.clone_from_ref(order);
             v = v.make_complete(false).into();
             v.as_ref().cardinal_high(&mut cardinal_rank, 0, max);
-            cardinal_orders.add(CardinalRef::new(&cardinal_rank)).unwrap();
+            cardinal_orders.push(CardinalRef::new(&cardinal_rank)).unwrap();
             cardinal_rank.fill(0);
         }
         Ok(cardinal_orders)
@@ -213,7 +213,7 @@ impl TiedIDense {
         let mut out = SpecificDense::new(self.elements);
         for order in self.iter() {
             let winner = order.winner(rng);
-            out.add(winner).unwrap();
+            out.push(winner).unwrap();
         }
         Ok(out)
     }
@@ -244,7 +244,7 @@ impl<'a> DenseOrders<'a> for TiedIDense {
         }
     }
 
-    fn add(&mut self, order: TiedIRef) -> Result<(), AddError> {
+    fn push(&mut self, order: TiedIRef) -> Result<(), AddError> {
         if order.elements() != self.elements {
             return Err(AddError::Elements);
         }
@@ -273,7 +273,7 @@ impl<'a> DenseOrders<'a> for TiedIDense {
 
             tmp = tmp.remove(n);
             if !tmp.is_empty() {
-                new.add(tmp.as_ref()).unwrap();
+                new.push(tmp.as_ref()).unwrap();
             }
         }
         *self = new;
@@ -337,12 +337,12 @@ impl<'a> FromIterator<TiedIRef<'a>> for Option<TiedIDense> {
         if let Some(first_v) = ii.next() {
             let elements = first_v.elements();
             let mut new = TiedIDense::new(elements);
-            new.add(first_v).unwrap();
+            new.push(first_v).unwrap();
             for v in ii {
                 if v.elements != elements {
                     return None;
                 }
-                new.add(v).unwrap();
+                new.push(v).unwrap();
             }
             Some(new)
         } else {
@@ -455,7 +455,7 @@ mod tests {
                 if t.is_empty() {
                     continue;
                 }
-                d.add(t.as_ref()).unwrap();
+                d.push(t.as_ref()).unwrap();
             }
         });
     }
@@ -474,7 +474,7 @@ mod tests {
                 if tmp.is_empty() {
                     continue;
                 }
-                d.add(tmp.as_ref()).unwrap();
+                d.push(tmp.as_ref()).unwrap();
             }
         });
     }

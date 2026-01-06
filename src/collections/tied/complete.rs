@@ -68,7 +68,7 @@ impl<'a> DenseOrders<'a> for TiedDense {
         if self.elements == 0 { 0 } else { self.orders.len() / self.elements }
     }
 
-    fn add(&mut self, v: Self::Order) -> Result<(), AddError> {
+    fn push(&mut self, v: Self::Order) -> Result<(), AddError> {
         let order = v.order();
         let tie = v.tied();
         if order.len() != self.elements && self.elements != 0 {
@@ -224,12 +224,12 @@ impl<'a> FromIterator<TiedRef<'a>> for Option<TiedDense> {
         if let Some(first_value) = ii.next() {
             let elements = first_value.elements();
             let mut out = TiedDense::new(elements);
-            out.add(first_value).unwrap();
+            out.push(first_value).unwrap();
             for v in ii {
                 if v.elements() != elements {
                     return None;
                 }
-                out.add(v).unwrap();
+                out.push(v).unwrap();
             }
             Some(out)
         } else {

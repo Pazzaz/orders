@@ -95,7 +95,7 @@ impl<'a> DenseOrders<'a> for BinaryDense {
         }
     }
 
-    fn add(&mut self, v: Self::Order) -> Result<(), AddError> {
+    fn push(&mut self, v: Self::Order) -> Result<(), AddError> {
         if v.len() != self.elements {
             return Err(AddError::Elements);
         }

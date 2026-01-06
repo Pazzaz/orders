@@ -98,7 +98,7 @@ impl DenseOrders<'_> for SpecificDense {
         self.orders.get(i).map(|x| Specific::new(*x, self.elements))
     }
 
-    fn add(&mut self, v: Self::Order) -> Result<(), AddError> {
+    fn push(&mut self, v: Self::Order) -> Result<(), AddError> {
         if v.elements() == self.elements {
             self.orders.try_reserve(1).or(Err(AddError::Alloc))?;
             self.orders.push(v.value);

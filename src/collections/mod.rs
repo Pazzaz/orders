@@ -24,7 +24,7 @@ pub trait DenseOrders<'a> {
         self.len() == 0
     }
 
-    fn add(&mut self, v: Self::Order) -> Result<(), AddError>;
+    fn push(&mut self, v: Self::Order) -> Result<(), AddError>;
 
     fn try_get(&'a self, i: usize) -> Option<Self::Order>;
 

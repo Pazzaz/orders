@@ -58,7 +58,7 @@ impl<'a> DenseOrders<'a> for TotalDense {
         }
     }
 
-    fn add(&mut self, v: Self::Order) -> Result<(), AddError> {
+    fn push(&mut self, v: Self::Order) -> Result<(), AddError> {
         if v.elements() != self.elements || self.elements == 0 {
             Err(AddError::Elements)
         } else if self.orders.try_reserve(self.elements).is_err() {
