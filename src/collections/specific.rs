@@ -142,19 +142,24 @@ impl DenseOrders<'_> for SpecificDense {
     }
 }
 
-impl FromIterator<usize> for SpecificDense {
-    fn from_iter<I: IntoIterator<Item = usize>>(iter: I) -> Self {
-        let ii = iter.into_iter();
+impl FromIterator<Specific> for Option<SpecificDense> {
+    fn from_iter<I: IntoIterator<Item = Specific>>(iter: I) -> Self {
+        let mut ii = iter.into_iter();
         let (min_len, _) = ii.size_hint();
-        let mut orders = Vec::with_capacity(min_len);
-        let mut max = 0;
-        for v in ii {
-            orders.push(v);
-            if v > max {
-                max = v;
+        if let Some(first_value) = ii.next() {
+            let mut values: Vec<usize> = Vec::with_capacity(min_len);
+            let elements = first_value.elements();
+            values.push(first_value.value);
+            for v in ii {
+                if v.elements() != elements {
+                    return None;
+                }
+                values.push(v.value);
             }
+            Some(SpecificDense { orders: values, elements })
+        } else {
+            None
         }
-        SpecificDense { orders, elements: max + 1 }
     }
 }
 

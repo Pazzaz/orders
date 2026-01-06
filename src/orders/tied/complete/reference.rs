@@ -1,5 +1,6 @@
 use crate::{
     OrderRef,
+    specific::Specific,
     tied::{GroupIterator, Tied, TiedIRef, split_ref::SplitRef},
     unique_and_bounded,
 };
@@ -40,6 +41,10 @@ impl<'a> TiedRef<'a> {
 
     pub fn winners(&self) -> &'a [usize] {
         TiedIRef::from(self).winners()
+    }
+
+    pub fn winner<R: rand::Rng>(&self, rng: &mut R) -> Specific {
+        TiedIRef::from(self).winner(rng)
     }
 
     pub fn iter_groups(&self) -> GroupIterator<'_> {

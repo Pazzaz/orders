@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use rand::{
     distr::{Bernoulli, Distribution},
-    seq::{IndexedRandom, SliceRandom},
+    seq::SliceRandom,
 };
 
 use crate::{
@@ -49,8 +49,8 @@ impl TiedDense {
     /// ranked (tied) elements.
     pub fn to_specific_using<R: rand::Rng>(self, rng: &mut R) -> SpecificDense {
         let elements = self.elements;
-        let mut orders: SpecificDense =
-            self.iter().map(|v| *v.winners().choose(rng).unwrap()).collect();
+        let mut orders =
+            self.iter().map(|v| v.winner(rng)).collect::<Option<SpecificDense>>().unwrap();
 
         orders.add_elements(orders.elements - elements);
         orders
