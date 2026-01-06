@@ -6,8 +6,7 @@ use rand::{
 };
 
 use crate::{
-    DenseOrders,
-    collections::{AddError, CardinalDense, SpecificDense, TotalDense},
+    collections::{AddError, CardinalDense, DenseOrders, SpecificDense, TotalDense},
     orders::tied::TiedRef,
 };
 

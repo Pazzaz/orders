@@ -4,8 +4,7 @@ use rand::{
 };
 
 use crate::{
-    DenseOrders,
-    collections::{AddError, strict::TotalDense},
+    collections::{AddError, DenseOrders, strict::TotalDense},
     strict::ChainRef,
 };
 

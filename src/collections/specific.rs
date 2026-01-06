@@ -3,7 +3,12 @@ use rand::{
     distr::{Distribution, Uniform},
 };
 
-use crate::{DenseOrders, Order, collections::AddError, pairwise_lt, specific::Specific};
+use crate::{
+    Order,
+    collections::{AddError, DenseOrders},
+    pairwise_lt,
+    specific::Specific,
+};
 
 /// A collection of elements.
 ///
@@ -12,7 +17,7 @@ use crate::{DenseOrders, Order, collections::AddError, pairwise_lt, specific::Sp
 /// votes in voting theory.
 ///
 /// ```
-/// use orders::{DenseOrders, collections::SpecificDense};
+/// use orders::collections::{DenseOrders, SpecificDense};
 ///
 /// let mut orders = SpecificDense::from_vec(5, vec![4, 3, 4, 2, 4]);
 ///

@@ -4,9 +4,9 @@ use rand::{
 };
 
 use crate::{
-    DenseOrders, add_bool,
+    add_bool,
     cardinal::CardinalRef,
-    collections::{AddError, CardinalDense, ChainDense, SpecificDense, TiedDense},
+    collections::{AddError, CardinalDense, ChainDense, DenseOrders, SpecificDense, TiedDense},
     tied::{Tied, TiedI, TiedIRef},
 };
 

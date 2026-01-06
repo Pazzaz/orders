@@ -97,66 +97,10 @@ where
     }
 }
 
-pub trait Order {
-    /// The number of elements that can be in this order.
-    fn elements(&self) -> usize;
-
-    /// The number of elements currently part of this order.
-    fn len(&self) -> usize;
-
-    /// Shorthand for `self.len() == 0`
-    fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-    fn to_partial(self) -> partial_order::PartialOrder;
-}
-
-pub trait OrderOwned<'a> {
-    type Ref;
-    fn as_ref(&'a self) -> Self::Ref;
-}
-
-pub trait OrderRef {
-    type Owned;
-    fn to_owned(self) -> Self::Owned;
-}
-
 use rand::{
     Rng,
     distr::{Distribution, StandardUniform},
 };
-
-use crate::collections::AddError;
-
-// Lifetime needed because `Order` may be a reference which then needs a
-// lifetime
-pub trait DenseOrders<'a> {
-    type Order;
-    /// Number of elements
-    fn elements(&self) -> usize;
-
-    fn len(&self) -> usize;
-
-    fn is_empty(&self) -> bool {
-        self.len() == 0
-    }
-
-    fn add(&mut self, v: Self::Order) -> Result<(), AddError>;
-
-    fn try_get(&'a self, i: usize) -> Option<Self::Order>;
-
-    fn get(&'a self, i: usize) -> Self::Order {
-        self.try_get(i).unwrap()
-    }
-
-    /// Removes element from the orders, offsetting the other elements to
-    /// take their place.
-    fn remove_element(&mut self, target: usize) -> Result<(), &'static str>;
-
-    /// Sample and add `new_orders` uniformly random orders for this format,
-    /// using random numbers from `rng`.
-    fn generate_uniform<R: Rng>(&mut self, rng: &mut R, new_orders: usize);
-}
 
 fn unique_and_bounded(elements: usize, order: &[usize]) -> bool {
     for (i, &a) in order.iter().enumerate() {

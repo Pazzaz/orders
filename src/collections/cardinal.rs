@@ -3,9 +3,8 @@ use std::{cmp::Ordering, iter::repeat_n, ops::RangeBounds};
 use rand::distr::{Distribution, Uniform};
 
 use crate::{
-    DenseOrders,
     cardinal::{Cardinal, CardinalRef},
-    collections::{AddError, binary::BinaryDense},
+    collections::{AddError, DenseOrders, binary::BinaryDense},
     pairwise_lt,
 };
 

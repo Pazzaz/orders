@@ -2,7 +2,11 @@
 // TotalRanking. Should they be combined somehow?
 use rand::seq::SliceRandom;
 
-use crate::{DenseOrders, collections::AddError, get_order, pairwise_lt, strict::TotalRef};
+use crate::{
+    collections::{AddError, DenseOrders},
+    get_order, pairwise_lt,
+    strict::TotalRef,
+};
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct TotalDense {

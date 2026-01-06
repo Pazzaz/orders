@@ -4,9 +4,8 @@ use rand::{
 };
 
 use crate::{
-    DenseOrders,
     binary::BinaryRef,
-    collections::{AddError, CardinalDense},
+    collections::{AddError, CardinalDense, DenseOrders},
     pairwise_lt,
 };
 
