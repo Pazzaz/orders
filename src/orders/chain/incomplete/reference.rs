@@ -1,13 +1,13 @@
-use crate::{strict::TotalRef, tied::TiedIRef, unique_and_bounded};
+use crate::{chain::ChainRef, tied::TiedIRef, unique_and_bounded};
 
 /// A possibly incomplete order without any ties
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub struct ChainRef<'a> {
+pub struct ChainIRef<'a> {
     pub(crate) elements: usize,
     pub(crate) order: &'a [usize],
 }
 
-impl<'a> ChainRef<'a> {
+impl<'a> ChainIRef<'a> {
     /// Create a reference to a strictly ordered (possible incomplete) order.
     ///
     /// # Panics
@@ -24,7 +24,7 @@ impl<'a> ChainRef<'a> {
     /// Elements in `order` have to be less than `elements`, without duplicates;
     /// otherwise it returns None.
     pub fn try_new(elements: usize, order: &'a [usize]) -> Option<Self> {
-        if unique_and_bounded(elements, order) { Some(ChainRef { elements, order }) } else { None }
+        if unique_and_bounded(elements, order) { Some(ChainIRef { elements, order }) } else { None }
     }
 
     /// Create a reference to a strictly ordered (possible incomplete) order.
@@ -33,7 +33,7 @@ impl<'a> ChainRef<'a> {
     ///
     /// Elements in `order` have to be less than `elements`, without duplicates.
     pub unsafe fn new_unchecked(elements: usize, order: &'a [usize]) -> Self {
-        ChainRef { elements, order }
+        ChainIRef { elements, order }
     }
 
     pub fn order(&self) -> &[usize] {
@@ -49,7 +49,7 @@ impl<'a> ChainRef<'a> {
     }
 
     pub fn top(&self, n: usize) -> Self {
-        ChainRef::new(self.elements, &self.order[0..n])
+        ChainIRef::new(self.elements, &self.order[0..n])
     }
 
     pub fn winner(&self) -> usize {
@@ -62,12 +62,12 @@ impl<'a> ChainRef<'a> {
     }
 }
 
-impl<'a> TryFrom<ChainRef<'a>> for TotalRef<'a> {
+impl<'a> TryFrom<ChainIRef<'a>> for ChainRef<'a> {
     type Error = ();
 
     /// Convert to complete order, returns `Err(())` if the order isn't actually
     /// complete.
-    fn try_from(ChainRef { elements, order }: ChainRef<'a>) -> Result<Self, Self::Error> {
-        if elements == order.len() { Ok(TotalRef { order }) } else { Err(()) }
+    fn try_from(ChainIRef { elements, order }: ChainIRef<'a>) -> Result<Self, Self::Error> {
+        if elements == order.len() { Ok(ChainRef { order }) } else { Err(()) }
     }
 }

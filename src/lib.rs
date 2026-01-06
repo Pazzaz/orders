@@ -10,7 +10,7 @@
 //! - [`Cardinal`](cardinal), a ranked order where every element is assigned
 //!   some number.
 //! - [`PartialOrder`](partial_order), a partial order
-//! - [`Total`](strict), a linear order containing every element.
+//! - [`Chain`](chain), a linear order containing every element.
 //! - [`Tied`](tied), a linear order containing every element, where some
 //!   elements can be tied.
 //!

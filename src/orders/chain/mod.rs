@@ -4,19 +4,19 @@
 //! comparable, ordered from largest to smallest. A chain is like a total order,
 //! but only orders a subset of all elements.
 //!
-//! - [`Total`], an owned total order.
-//! - [`TotalRef`], reference to a `Total`.
-//! - [`Chain`], an owned total order of a subset of all elements.
+//! - [`Chain`], an owned total order.
 //! - [`ChainRef`], reference to a `Chain`.
+//! - [`ChainI`], an owned total order of a subset of all elements.
+//! - [`ChainIRef`], reference to a `ChainI`.
 //!
 //! For collections of total orders, see
-//! [`TotalDense`](crate::collections::TotalDense) and
-//! [`ChainDense`](crate::collections::ChainDense).
+//! [`ChainDense`](crate::collections::ChainDense) and
+//! [`ChainIDense`](crate::collections::ChainIDense).
 //!
 //! [wp]: https://en.wikipedia.org/wiki/Total_order
 
 mod complete;
 mod incomplete;
 
-pub use complete::{Total, TotalRef};
-pub use incomplete::{Chain, ChainRef};
+pub use complete::{Chain, ChainRef};
+pub use incomplete::{ChainI, ChainIRef};

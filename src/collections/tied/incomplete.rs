@@ -6,7 +6,7 @@ use rand::{
 use crate::{
     add_bool,
     cardinal::CardinalRef,
-    collections::{AddError, CardinalDense, ChainDense, DenseOrders, SpecificDense, TiedDense},
+    collections::{AddError, CardinalDense, ChainIDense, DenseOrders, SpecificDense, TiedDense},
     tied::{Tied, TiedI, TiedIRef},
 };
 
@@ -304,8 +304,8 @@ impl<'a> DenseOrders<'a> for TiedIDense {
     }
 }
 
-impl From<ChainDense> for TiedIDense {
-    fn from(value: ChainDense) -> Self {
+impl From<ChainIDense> for TiedIDense {
+    fn from(value: ChainIDense) -> Self {
         let orders: usize = value.len();
         TiedIDense::from_parts(
             value.orders,

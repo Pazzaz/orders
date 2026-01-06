@@ -1,23 +1,23 @@
 use crate::{
     OrderRef,
-    strict::{ChainRef, Total},
+    chain::{Chain, ChainIRef},
     unique_and_bounded,
 };
 
 #[derive(Debug, Clone, Copy)]
-pub struct TotalRef<'a> {
+pub struct ChainRef<'a> {
     pub(crate) order: &'a [usize],
 }
 
-impl<'a> TotalRef<'a> {
+impl<'a> ChainRef<'a> {
     /// Create a new `StrictRef` from a permutation of `0..s.len()`.
     pub fn new(v: &'a [usize]) -> Self {
         assert!(unique_and_bounded(v.len(), v));
-        TotalRef { order: v }
+        ChainRef { order: v }
     }
 
     pub unsafe fn new_unchecked(v: &'a [usize]) -> Self {
-        TotalRef { order: v }
+        ChainRef { order: v }
     }
 
     pub fn elements(&self) -> usize {
@@ -28,17 +28,17 @@ impl<'a> TotalRef<'a> {
         &self.order[..n]
     }
 
-    pub fn to_incomplete(self) -> ChainRef<'a> {
+    pub fn to_incomplete(self) -> ChainIRef<'a> {
         let Self { order } = self;
         let elements = order.len();
-        ChainRef { elements, order }
+        ChainIRef { elements, order }
     }
 }
 
-impl OrderRef for TotalRef<'_> {
-    type Owned = Total;
+impl OrderRef for ChainRef<'_> {
+    type Owned = Chain;
 
     fn to_owned(self) -> Self::Owned {
-        Total { order: self.order.to_vec() }
+        Chain { order: self.order.to_vec() }
     }
 }

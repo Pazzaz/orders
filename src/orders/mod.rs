@@ -2,8 +2,8 @@ use crate::partial_order;
 
 pub mod binary;
 pub mod cardinal;
+pub mod chain;
 pub mod specific;
-pub mod strict;
 pub mod tied;
 
 pub trait Order {

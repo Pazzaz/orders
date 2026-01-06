@@ -5,19 +5,19 @@ use rand::{
 
 use crate::{
     Order, OrderOwned, OrderRef,
+    chain::{Chain, ChainIRef},
     partial_order::{PartialOrder, PartialOrderManual},
-    strict::{ChainRef, Total},
     unique_and_bounded,
 };
 
-/// A possibly incomplete order without any ties, owned version of [`ChainRef`]
+/// A possibly incomplete order without any ties, owned version of [`ChainIRef`]
 #[derive(Debug, PartialEq, Eq)]
-pub struct Chain {
+pub struct ChainI {
     pub(crate) elements: usize,
     pub(crate) order: Vec<usize>,
 }
 
-impl Clone for Chain {
+impl Clone for ChainI {
     fn clone(&self) -> Self {
         Self { elements: self.elements, order: self.order.clone() }
     }
@@ -28,48 +28,48 @@ impl Clone for Chain {
     }
 }
 
-impl Chain {
+impl ChainI {
     pub fn new(elements: usize, order: Vec<usize>) -> Self {
         Self::try_new(elements, order).unwrap()
     }
 
     pub fn try_new(elements: usize, order: Vec<usize>) -> Option<Self> {
-        if unique_and_bounded(elements, &order) { Some(Chain { elements, order }) } else { None }
+        if unique_and_bounded(elements, &order) { Some(ChainI { elements, order }) } else { None }
     }
 
     pub unsafe fn new_unchecked(elements: usize, order: Vec<usize>) -> Self {
-        Chain { elements, order }
+        ChainI { elements, order }
     }
 
     /// Clones from `source` to `self`, similar to [`Clone::clone_from`].
-    pub fn clone_from_ref(&mut self, source: ChainRef) {
+    pub fn clone_from_ref(&mut self, source: ChainIRef) {
         self.order.clone_from_slice(source.order);
         self.elements = source.elements;
     }
 
-    pub fn random<R: Rng>(rng: &mut R, elements: usize) -> Chain {
+    pub fn random<R: Rng>(rng: &mut R, elements: usize) -> ChainI {
         if elements == 0 {
-            Chain { order: Vec::new(), elements }
+            ChainI { order: Vec::new(), elements }
         } else {
             let len = rng.random_range(0..elements);
 
             let mut order = (0..elements).choose_multiple(rng, len);
             order.shuffle(rng);
-            Chain { order, elements }
+            ChainI { order, elements }
         }
     }
 }
 
-impl TryFrom<Chain> for Total {
+impl TryFrom<ChainI> for Chain {
     type Error = ();
 
     /// Convert to total order. Returns `Err` if not all elements are ranked.
-    fn try_from(Chain { elements, order }: Chain) -> Result<Self, Self::Error> {
-        if elements == order.len() { Ok(Total { order }) } else { Err(()) }
+    fn try_from(ChainI { elements, order }: ChainI) -> Result<Self, Self::Error> {
+        if elements == order.len() { Ok(Chain { order }) } else { Err(()) }
     }
 }
 
-impl Order for Chain {
+impl Order for ChainI {
     fn elements(&self) -> usize {
         self.elements
     }
@@ -92,19 +92,19 @@ impl Order for Chain {
     }
 }
 
-impl<'a> OrderOwned<'a> for Chain {
-    type Ref = ChainRef<'a>;
+impl<'a> OrderOwned<'a> for ChainI {
+    type Ref = ChainIRef<'a>;
 
     fn as_ref(&'a self) -> Self::Ref {
-        ChainRef { elements: self.elements, order: &self.order }
+        ChainIRef { elements: self.elements, order: &self.order }
     }
 }
 
-impl OrderRef for ChainRef<'_> {
-    type Owned = Chain;
+impl OrderRef for ChainIRef<'_> {
+    type Owned = ChainI;
 
     fn to_owned(self) -> Self::Owned {
-        Chain::new(self.elements, self.order.to_vec())
+        ChainI::new(self.elements, self.order.to_vec())
     }
 }
 
@@ -115,30 +115,30 @@ mod tests {
     use super::*;
     use crate::{partial_order::tests::valid, tests::std_rng};
 
-    impl Arbitrary for Chain {
+    impl Arbitrary for ChainI {
         fn arbitrary(g: &mut Gen) -> Self {
             // Modulo to avoid problematic values
             let elements = <usize as Arbitrary>::arbitrary(g) % g.size();
-            Chain::random(&mut std_rng(g), elements)
+            ChainI::random(&mut std_rng(g), elements)
         }
 
         fn shrink(&self) -> Box<dyn Iterator<Item = Self>> {
             let x = self.clone();
             let iter = (0..(x.len().saturating_sub(1)))
                 .rev()
-                .map(move |i| Chain::new(x.elements, x.order[0..i].to_vec()));
+                .map(move |i| ChainI::new(x.elements, x.order[0..i].to_vec()));
             Box::new(iter)
         }
     }
 
     #[quickcheck]
-    fn as_partial(b: Chain) -> bool {
+    fn as_partial(b: ChainI) -> bool {
         let po = b.to_partial();
         valid(&po)
     }
 
     #[quickcheck]
-    fn as_partial_correct(b: Chain) -> bool {
+    fn as_partial_correct(b: ChainI) -> bool {
         let po = b.clone().to_partial();
         if !valid(&po) {
             return false;
@@ -181,7 +181,7 @@ mod tests {
     }
 
     #[quickcheck]
-    fn len(b: Chain) -> bool {
+    fn len(b: ChainI) -> bool {
         b.len() <= b.elements()
     }
 }

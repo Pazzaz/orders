@@ -4,8 +4,8 @@ use rand::{Rng, prelude::SliceRandom};
 
 use crate::{
     Order, OrderOwned,
+    chain::{ChainI, ChainRef},
     partial_order::PartialOrder,
-    strict::{Chain, TotalRef},
     unique_and_bounded,
 };
 
@@ -14,11 +14,11 @@ use crate::{
 /// Consists of a list of elements, arranged from highest to lowest elements,
 /// ordering all elements.
 #[derive(Debug)]
-pub struct Total {
+pub struct Chain {
     pub(crate) order: Vec<usize>,
 }
 
-impl Clone for Total {
+impl Clone for Chain {
     fn clone(&self) -> Self {
         Self { order: self.order.clone() }
     }
@@ -28,7 +28,7 @@ impl Clone for Total {
     }
 }
 
-impl Total {
+impl Chain {
     /// Create a new total order.
     ///
     /// # Panics
@@ -56,11 +56,11 @@ impl Total {
 
     /// Create a new total order of `n` elements, in the natural order,
     pub fn new_default(n: usize) -> Self {
-        Total { order: (0..n).collect() }
+        Chain { order: (0..n).collect() }
     }
 
     /// Clones from `source` to `self`, similar to [`Clone::clone_from`].
-    pub fn clone_from_ref(&mut self, source: TotalRef) {
+    pub fn clone_from_ref(&mut self, source: ChainRef) {
         self.order.clone_from_slice(source.order);
     }
 
@@ -95,21 +95,21 @@ impl Total {
         self.order.sort_by(f);
     }
 
-    pub fn random<R: Rng>(rng: &mut R, elements: usize) -> Total {
+    pub fn random<R: Rng>(rng: &mut R, elements: usize) -> Chain {
         let mut order: Vec<usize> = (0..elements).collect();
         order.shuffle(rng);
-        Total { order }
+        Chain { order }
     }
 
     /// Lossless conversion to `Chain`.
-    pub fn to_incomplete(self) -> Chain {
+    pub fn to_incomplete(self) -> ChainI {
         let Self { order } = self;
         let elements = order.len();
-        Chain { elements, order }
+        ChainI { elements, order }
     }
 }
 
-impl Order for Total {
+impl Order for Chain {
     fn elements(&self) -> usize {
         self.order.len()
     }
@@ -123,10 +123,10 @@ impl Order for Total {
     }
 }
 
-impl<'a> OrderOwned<'a> for Total {
-    type Ref = TotalRef<'a>;
+impl<'a> OrderOwned<'a> for Chain {
+    type Ref = ChainRef<'a>;
 
     fn as_ref(&'a self) -> Self::Ref {
-        TotalRef { order: &self.order }
+        ChainRef { order: &self.order }
     }
 }

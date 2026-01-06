@@ -4,15 +4,15 @@ use rand::{
 };
 
 use crate::{
-    collections::{AddError, DenseOrders, strict::TotalDense},
-    strict::ChainRef,
+    chain::ChainIRef,
+    collections::{AddError, DenseOrders, chain::ChainDense},
 };
 
 /// SOI - Strict Orders - Incomplete List
 ///
 /// A packed list of (possibly incomplete) strict orders, with related methods.
 #[derive(Debug)]
-pub struct ChainDense {
+pub struct ChainIDense {
     pub(crate) orders: Vec<usize>,
 
     // End position of order
@@ -20,7 +20,7 @@ pub struct ChainDense {
     pub(crate) elements: usize,
 }
 
-impl Clone for ChainDense {
+impl Clone for ChainIDense {
     fn clone(&self) -> Self {
         Self {
             orders: self.orders.clone(),
@@ -36,22 +36,22 @@ impl Clone for ChainDense {
     }
 }
 
-impl ChainDense {
+impl ChainIDense {
     pub fn new(elements: usize) -> Self {
-        ChainDense { orders: Vec::new(), order_end: Vec::new(), elements }
+        ChainIDense { orders: Vec::new(), order_end: Vec::new(), elements }
     }
 
     pub fn elements(&self) -> usize {
         self.elements
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = ChainRef<'_>> {
+    pub fn iter(&self) -> impl Iterator<Item = ChainIRef<'_>> {
         (0..self.len()).map(|i| self.get(i))
     }
 }
 
-impl<'a> DenseOrders<'a> for ChainDense {
-    type Order = ChainRef<'a>;
+impl<'a> DenseOrders<'a> for ChainIDense {
+    type Order = ChainIRef<'a>;
 
     fn elements(&self) -> usize {
         self.elements
@@ -65,7 +65,7 @@ impl<'a> DenseOrders<'a> for ChainDense {
         if i < self.len() {
             let start: usize = if i == 0 { 0 } else { self.order_end[i - 1] };
             let end = self.order_end[i];
-            Some(ChainRef::new(self.elements, &self.orders[start..end]))
+            Some(ChainIRef::new(self.elements, &self.orders[start..end]))
         } else {
             None
         }
@@ -105,11 +105,11 @@ impl<'a> DenseOrders<'a> for ChainDense {
     }
 }
 
-impl From<TotalDense> for ChainDense {
-    fn from(value: TotalDense) -> Self {
+impl From<ChainDense> for ChainIDense {
+    fn from(value: ChainDense) -> Self {
         let orders: usize = value.len();
         let order_end = (0..orders).map(|i| (i + 1) * value.elements).collect();
-        ChainDense { orders: value.orders, order_end, elements: value.elements }
+        ChainIDense { orders: value.orders, order_end, elements: value.elements }
     }
 }
 
@@ -118,10 +118,10 @@ mod tests {
     use quickcheck::{Arbitrary, Gen};
 
     use super::*;
-    use crate::{OrderOwned, OrderRef, strict::Chain, tests::std_rng};
+    use crate::{OrderOwned, OrderRef, chain::ChainI, tests::std_rng};
 
     /// Returns true if this struct is in a valid state, used for debugging.
-    fn valid(cd: &ChainDense) -> bool {
+    fn valid(cd: &ChainIDense) -> bool {
         let mut seen = vec![false; cd.elements];
         for v in cd.iter() {
             seen.fill(false);
@@ -145,7 +145,7 @@ mod tests {
         true
     }
 
-    impl Arbitrary for ChainDense {
+    impl Arbitrary for ChainIDense {
         fn arbitrary(g: &mut Gen) -> Self {
             let (mut orders_count, mut elements): (usize, usize) = Arbitrary::arbitrary(g);
 
@@ -155,21 +155,21 @@ mod tests {
             orders_count = orders_count % g.size();
             elements = elements % g.size();
 
-            let mut orders = ChainDense::new(elements);
+            let mut orders = ChainIDense::new(elements);
             orders.generate_uniform(&mut std_rng(g), orders_count);
             orders
         }
     }
 
     #[quickcheck]
-    fn generate(orders: ChainDense) -> bool {
+    fn generate(orders: ChainIDense) -> bool {
         valid(&orders)
     }
 
     #[quickcheck]
-    fn iter_collect(orders: ChainDense) -> bool {
+    fn iter_collect(orders: ChainIDense) -> bool {
         let orig = orders.clone();
-        let parts: Vec<Chain> = orders.iter().map(|x| x.to_owned()).collect();
+        let parts: Vec<ChainI> = orders.iter().map(|x| x.to_owned()).collect();
         for i in 0..orders.len() {
             if parts[i].as_ref() != orig.get(i) {
                 return false;

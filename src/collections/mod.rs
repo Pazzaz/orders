@@ -1,14 +1,14 @@
 mod binary;
 mod cardinal;
+mod chain;
 mod specific;
-mod strict;
 mod tied;
 
 pub use binary::BinaryDense;
 pub use cardinal::CardinalDense;
+pub use chain::{ChainDense, ChainIDense};
 use rand::Rng;
 pub use specific::SpecificDense;
-pub use strict::{ChainDense, TotalDense};
 pub use tied::{TiedDense, TiedIDense};
 
 // Lifetime needed because `Order` may be a reference which then needs a

@@ -3,18 +3,18 @@
 use rand::seq::SliceRandom;
 
 use crate::{
+    chain::ChainRef,
     collections::{AddError, DenseOrders},
     get_order, pairwise_lt,
-    strict::TotalRef,
 };
 
 #[derive(Debug, PartialEq, Eq)]
-pub struct TotalDense {
+pub struct ChainDense {
     pub(crate) orders: Vec<usize>,
     pub(crate) elements: usize,
 }
 
-impl Clone for TotalDense {
+impl Clone for ChainDense {
     fn clone(&self) -> Self {
         Self { orders: self.orders.clone(), elements: self.elements }
     }
@@ -25,18 +25,18 @@ impl Clone for TotalDense {
     }
 }
 
-impl TotalDense {
+impl ChainDense {
     pub fn new(elements: usize) -> Self {
-        TotalDense { orders: Vec::new(), elements }
+        ChainDense { orders: Vec::new(), elements }
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = TotalRef<'_>> {
+    pub fn iter(&self) -> impl Iterator<Item = ChainRef<'_>> {
         (0..self.len()).map(|i| self.get(i))
     }
 }
 
-impl<'a> DenseOrders<'a> for TotalDense {
-    type Order = TotalRef<'a>;
+impl<'a> DenseOrders<'a> for ChainDense {
+    type Order = ChainRef<'a>;
 
     fn elements(&self) -> usize {
         self.elements
@@ -52,7 +52,7 @@ impl<'a> DenseOrders<'a> for TotalDense {
             let end = (i + 1) * self.elements;
             let s = &self.orders[start..end];
             // TODO: Use unsafe?
-            Some(TotalRef::new(s))
+            Some(ChainRef::new(s))
         } else {
             None
         }
@@ -123,7 +123,7 @@ mod tests {
     // Check if a given total ranking is valid, i.e.
     // 1. len(orders) % elements == 0
     // 2. Every ranking is total
-    fn valid(td: &TotalDense) -> bool {
+    fn valid(td: &ChainDense) -> bool {
         if td.elements == 0 {
             td.orders.is_empty()
         } else if td.orders.len() % td.elements != 0 {
@@ -151,7 +151,7 @@ mod tests {
             true
         }
     }
-    impl Arbitrary for TotalDense {
+    impl Arbitrary for ChainDense {
         fn arbitrary(g: &mut Gen) -> Self {
             let (mut orders_count, mut elements): (usize, usize) = Arbitrary::arbitrary(g);
 
@@ -161,14 +161,14 @@ mod tests {
             orders_count = orders_count % g.size();
             elements = elements % g.size();
 
-            let mut orders = TotalDense::new(elements);
+            let mut orders = ChainDense::new(elements);
             orders.generate_uniform(&mut std_rng(g), orders_count);
             orders
         }
     }
 
     #[quickcheck]
-    fn generate(orders: TotalDense) -> bool {
+    fn generate(orders: ChainDense) -> bool {
         valid(&orders)
     }
 }
