@@ -1,13 +1,12 @@
 use rand::{
     distr::{Distribution, Uniform},
-    seq::{IndexedRandom, SliceRandom},
+    seq::SliceRandom,
 };
 
 use crate::{
     DenseOrders, add_bool,
     cardinal::CardinalRef,
     collections::{AddError, CardinalDense, ChainDense, SpecificDense, TiedDense},
-    specific::Specific,
     tied::{Tied, TiedI, TiedIRef},
 };
 
@@ -213,10 +212,8 @@ impl TiedIDense {
         // TODO: Add with_capacity
         let mut out = SpecificDense::new(self.elements);
         for order in self.iter() {
-            let winners = order.winners();
-            let winner = winners.choose(rng).unwrap();
-            let specific = Specific::new(*winner, self.elements);
-            out.add(specific).unwrap();
+            let winner = order.winner(rng);
+            out.add(winner).unwrap();
         }
         Ok(out)
     }

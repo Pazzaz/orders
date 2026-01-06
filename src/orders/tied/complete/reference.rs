@@ -39,8 +39,7 @@ impl<'a> TiedRef<'a> {
     }
 
     pub fn winners(&self) -> &'a [usize] {
-        let ti: TiedIRef = self.into();
-        ti.winners()
+        TiedIRef::from(self).winners()
     }
 
     pub fn iter_groups(&self) -> GroupIterator<'_> {

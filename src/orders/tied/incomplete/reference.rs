@@ -1,5 +1,8 @@
+use rand::seq::IndexedRandom;
+
 use super::groups::GroupIterator;
 use crate::{
+    specific::Specific,
     tied::{TiedI, split_ref::SplitRef},
     unique_and_bounded,
 };
@@ -150,6 +153,14 @@ impl<'a> TiedIRef<'a> {
     pub fn winners(&self) -> &'a [usize] {
         let i = self.tied().iter().take_while(|x| **x).count();
         &self.order()[0..=i]
+    }
+
+    pub fn winner<R: rand::Rng>(&self, rng: &mut R) -> Specific {
+        let winner = match self.winners() {
+            [v] => v,
+            vs => vs.choose(rng).unwrap(),
+        };
+        Specific::new(*winner, self.elements)
     }
 
     pub fn is_empty(&self) -> bool {
