@@ -7,8 +7,9 @@ use rand::{
 };
 
 use crate::{
-    add_bool, sort_using,
+    OrderOwned, add_bool, sort_using,
     tied::{Tied, TiedIRef},
+    unique_and_bounded,
 };
 
 /// An order with possible ties.
@@ -31,12 +32,42 @@ impl Clone for TiedI {
     }
 }
 
-impl<'a> TiedI {
+impl TiedI {
+    /// Create an order (that may be incomplete) with possible ties.
+    ///
+    /// # Arguments
+    ///
+    /// - `elements`: number of elements that may be part of the order
+    /// - `order`: elements included in the order, earlier elements are ranked
+    ///   higher
+    /// - `tied`: for each adjacent pair in `order`, indicates whether they are
+    ///   tied in the order
+    ///
+    /// # Panics
+    ///
+    /// Panics if the input values are invalid.
     pub fn new(elements: usize, order: Vec<usize>, tied: Vec<bool>) -> Self {
-        assert!(tied.len() + 1 == order.len() || tied.is_empty() && order.is_empty());
-        TiedI { elements, order, tied }
+        Self::try_new(elements, order, tied).unwrap()
     }
 
+    /// Create an order (that may be incomplete) with possible ties.
+    ///
+    /// Returns [`None`] if the input values are invalid. See [`TiedI::new`].
+    pub fn try_new(elements: usize, order: Vec<usize>, tied: Vec<bool>) -> Option<Self> {
+        if unique_and_bounded(elements, &order)
+            && (tied.len() + 1 == order.len() || tied.is_empty() && order.is_empty())
+        {
+            Some(TiedI { elements, order, tied })
+        } else {
+            None
+        }
+    }
+
+    /// Create an order (that may be incomplete) with possible ties.
+    ///
+    /// # Safety
+    ///
+    /// Assumes that the input values are valid. See [`TiedI::new`].
     pub unsafe fn new_unchecked(elements: usize, order: Vec<usize>, tied: Vec<bool>) -> Self {
         TiedI { elements, order, tied }
     }
@@ -79,10 +110,6 @@ impl<'a> TiedI {
             tied.extend(repeat_n(true, group.len().saturating_sub(1)));
         }
         TiedI::new(elements, orders, tied)
-    }
-
-    pub fn as_ref(&'a self) -> TiedIRef<'a> {
-        TiedIRef::new(self.elements, &self.order[..], &self.tied[..])
     }
 
     /// Return the number of ordered elements.
@@ -358,6 +385,14 @@ impl<'a> TiedI {
         let tied_len = v.len().saturating_sub(1);
         let tied = vec![false; tied_len];
         TiedI::new(elements, v, tied)
+    }
+}
+
+impl<'a> OrderOwned<'a> for TiedI {
+    type Ref = TiedIRef<'a>;
+
+    fn as_ref(&'a self) -> Self::Ref {
+        TiedIRef::new(self.elements, &self.order[..], &self.tied[..])
     }
 }
 

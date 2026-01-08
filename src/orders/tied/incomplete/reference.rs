@@ -115,7 +115,7 @@ impl<'a> TiedIRef<'a> {
     /// highest elements.
     ///
     /// ```
-    /// use orders::tied::TiedI;
+    /// use orders::{OrderOwned, tied::TiedI};
     ///
     /// let order = TiedI::from_slices(7, &[&[4, 2, 3], &[0, 1]]);
     /// let firsts: Vec<usize> = order.as_ref().iter_groups().map(|x| x[0]).collect();

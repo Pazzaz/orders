@@ -4,7 +4,7 @@ use rand::{
 };
 
 use crate::{
-    add_bool,
+    OrderOwned, add_bool,
     cardinal::CardinalRef,
     collections::{AddError, CardinalDense, ChainIDense, DenseOrders, SpecificDense, TiedDense},
     tied::{Tied, TiedI, TiedIRef},
