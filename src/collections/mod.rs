@@ -11,10 +11,12 @@ use rand::Rng;
 pub use specific::SpecificDense;
 pub use tied::{TiedDense, TiedIDense};
 
+use crate::OrderRef;
+
 // Lifetime needed because `Order` may be a reference which then needs a
 // lifetime
 pub trait DenseOrders<'a> {
-    type Order;
+    type Order: OrderRef;
     /// Number of elements
     fn elements(&self) -> usize;
 
