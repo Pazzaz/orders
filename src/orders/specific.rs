@@ -1,6 +1,6 @@
 use rand::Rng;
 
-use crate::{Order, OrderOwned, partial_order::PartialOrderManual};
+use crate::{Order, OrderOwned, OrderRef, partial_order::PartialOrderManual};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Specific {
@@ -49,10 +49,18 @@ impl Order for Specific {
 }
 
 impl<'a> OrderOwned<'a> for Specific {
-    type Ref = &'a Specific;
+    type Ref = Specific;
 
-    fn as_ref(&'a self) -> Self::Ref {
-        &self
+    fn as_ref(&self) -> Self::Ref {
+        *self
+    }
+}
+
+impl OrderRef for Specific {
+    type Owned = Specific;
+
+    fn to_owned(self) -> Self::Owned {
+        self
     }
 }
 

@@ -359,7 +359,7 @@ mod tests {
     use test::Bencher;
 
     use super::*;
-    use crate::tests::std_rng;
+    use crate::{OrderRef, tests::std_rng};
 
     /// Returns true if this struct is in a valid state, used for debugging.
     fn valid(td: &TiedIDense) -> bool {
@@ -420,7 +420,7 @@ mod tests {
         let mut a = orders;
         let b: TiedIDense = a
             .iter()
-            .map(|x| x.owned().remove(n))
+            .map(|x| x.to_owned().remove(n))
             .collect::<Vec<TiedI>>()
             .iter()
             .filter_map(|x| if x.is_empty() { None } else { Some(x.as_ref()) })

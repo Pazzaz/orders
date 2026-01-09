@@ -401,7 +401,7 @@ mod tests {
     use quickcheck::{Arbitrary, Gen};
 
     use super::*;
-    use crate::{Order, tests::std_rng};
+    use crate::{Order, OrderRef, tests::std_rng};
 
     impl Arbitrary for TiedI {
         fn arbitrary(g: &mut Gen) -> Self {
@@ -433,7 +433,7 @@ mod tests {
 
     #[quickcheck]
     fn owned(rank: TiedI) -> bool {
-        rank == rank.as_ref().owned()
+        rank == rank.as_ref().to_owned()
     }
 
     #[test]

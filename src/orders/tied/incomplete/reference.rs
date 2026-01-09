@@ -2,6 +2,7 @@ use rand::seq::IndexedRandom;
 
 use super::groups::GroupIterator;
 use crate::{
+    OrderRef,
     specific::Specific,
     tied::{TiedI, split_ref::SplitRef},
     unique_and_bounded,
@@ -107,10 +108,6 @@ impl<'a> TiedIRef<'a> {
         self.order().len()
     }
 
-    pub fn owned(self) -> TiedI {
-        TiedI::new(self.elements, self.order().to_vec(), self.tied().to_vec())
-    }
-
     /// Iterate over the groups of tied elements in the order, starting with the
     /// highest elements.
     ///
@@ -189,5 +186,13 @@ impl<'a> TiedIRef<'a> {
             (out, rest_order, rest_tied)
         };
         (out, TiedIRef::new(self.elements, rest_order, rest_tied))
+    }
+}
+
+impl<'a> OrderRef for TiedIRef<'a> {
+    type Owned = TiedI;
+
+    fn to_owned(self) -> Self::Owned {
+        TiedI::new(self.elements, self.order().to_vec(), self.tied().to_vec())
     }
 }
