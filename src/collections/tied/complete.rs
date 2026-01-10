@@ -233,7 +233,7 @@ impl<'a> FromIterator<TiedRef<'a>> for Option<TiedDense> {
             }
             Some(out)
         } else {
-            return None;
+            None
         }
     }
 }

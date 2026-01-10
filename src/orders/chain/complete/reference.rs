@@ -10,12 +10,27 @@ pub struct ChainRef<'a> {
 }
 
 impl<'a> ChainRef<'a> {
-    /// Create a new `StrictRef` from a permutation of `0..s.len()`.
+    /// Create a new `ChainRef` from a permutation.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `v` is not a valid permutation.
     pub fn new(v: &'a [usize]) -> Self {
-        assert!(unique_and_bounded(v.len(), v));
-        ChainRef { order: v }
+        Self::try_new(v).expect("slice should be a permutation")
     }
 
+    /// Create a new `ChainRef` from a permutation.
+    ///
+    /// Returns [`None`] if `v` is not a valid permutation.
+    pub fn try_new(v: &'a [usize]) -> Option<Self> {
+        if unique_and_bounded(v.len(), v) { Some(ChainRef { order: v }) } else { None }
+    }
+
+    /// Create a new `ChainRef` from a permutation.
+    ///
+    /// # Safety
+    ///
+    /// Assumes `v` is not a valid permutation.
     pub unsafe fn new_unchecked(v: &'a [usize]) -> Self {
         ChainRef { order: v }
     }

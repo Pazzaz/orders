@@ -10,10 +10,20 @@ pub struct TiedRef<'a> {
 }
 
 impl<'a> TiedRef<'a> {
+    /// Create a new `TiedRef` from a permutation and a list denoting ties.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `order` is not a valid permutation or `tied` is the wrong
+    /// length.
     pub fn new(order: &'a [usize], tied: &'a [bool]) -> Self {
         Self::try_new(order, tied).unwrap()
     }
 
+    /// Create a new `TiedRef` from a permutation and a list denoting ties.
+    ///
+    /// Returns `None` if `order` is not a valid permutation or `tied` is the
+    /// wrong length.
     pub fn try_new(order: &'a [usize], tied: &'a [bool]) -> Option<Self> {
         let correct_len = order.is_empty() && tied.is_empty() || tied.len() + 1 == order.len();
         if correct_len && unique_and_bounded(order.len(), order) {
@@ -23,6 +33,11 @@ impl<'a> TiedRef<'a> {
         }
     }
 
+    /// Create a new `TiedRef` from a permutation and a list denoting ties.
+    ///
+    /// # Safety
+    ///
+    /// Assumes `order` is a valid permutation and `tied` is the correct length.
     pub unsafe fn new_unchecked(order: &'a [usize], tied: &'a [bool]) -> Self {
         TiedRef { order_tied: SplitRef::new(order, tied) }
     }
@@ -48,7 +63,7 @@ impl<'a> TiedRef<'a> {
     }
 
     pub fn iter_groups(&self) -> GroupIterator<'_> {
-        GroupIterator { order: self.into() }
+        TiedIRef::from(self).iter_groups()
     }
 }
 

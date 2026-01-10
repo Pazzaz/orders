@@ -26,10 +26,20 @@ impl Clone for Tied {
 }
 
 impl Tied {
+    /// Create a new `Tied` from a permutation and a list denoting ties.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `order` is not a valid permutation or `tied` is the wrong
+    /// length.
     pub fn new(order: Vec<usize>, tied: Vec<bool>) -> Self {
         Self::try_new(order, tied).unwrap()
     }
 
+    /// Create a new `Tied` from a permutation and a list denoting ties.
+    ///
+    /// Returns [`None`] if `order` is not a valid permutation or `tied` is the
+    /// wrong length.
     pub fn try_new(order: Vec<usize>, tied: Vec<bool>) -> Option<Self> {
         let correct_len = order.is_empty() && tied.is_empty() || tied.len() + 1 == order.len();
         if correct_len && unique_and_bounded(order.len(), &order) {
@@ -39,6 +49,9 @@ impl Tied {
         }
     }
 
+    /// Create a new `Tied` from a permutation and a list denoting ties.
+    ///
+    /// Assumes `order` is a valid permutation and `tied` is the correct length.
     pub unsafe fn new_unchecked(order: Vec<usize>, tied: Vec<bool>) -> Self {
         Tied { order, tied }
     }
@@ -70,10 +83,7 @@ impl Tied {
         if elements == 0 {
             return Tied::new(Vec::new(), Vec::new());
         }
-        let mut order = Vec::with_capacity(elements);
-        for i in 0..elements {
-            order.push(i);
-        }
+        let order: Vec<usize> = (0..elements).collect();
         let tied = vec![true; elements - 1];
         Tied::new(order, tied)
     }

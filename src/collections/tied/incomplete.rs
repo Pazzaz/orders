@@ -346,7 +346,7 @@ impl<'a> FromIterator<TiedIRef<'a>> for Option<TiedIDense> {
             }
             Some(new)
         } else {
-            return None;
+            None
         }
     }
 }
