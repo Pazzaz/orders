@@ -359,7 +359,10 @@ mod tests {
     use test::Bencher;
 
     use super::*;
-    use crate::{OrderRef, tests::std_rng};
+    use crate::{
+        OrderRef,
+        tests::{BoundedArbitrary, std_rng},
+    };
 
     /// Returns true if this struct is in a valid state, used for debugging.
     fn valid(td: &TiedIDense) -> bool {
@@ -391,16 +394,11 @@ mod tests {
 
     impl Arbitrary for TiedIDense {
         fn arbitrary(g: &mut Gen) -> Self {
-            let (mut orders_count, mut elements): (usize, usize) = Arbitrary::arbitrary(g);
-
-            // `Arbitrary` for numbers will generate "problematic" examples such as
-            // `usize::max_value()` and `usize::min_value()` but we'll use them to
-            // allocate vectors so we'll limit them.
-            elements = elements % g.size();
-            orders_count = if elements != 0 { orders_count % g.size() } else { 0 };
-
+            let (orders_count, elements): (usize, usize) = BoundedArbitrary::arbitrary(g);
             let mut orders = TiedIDense::new(elements);
-            orders.generate_uniform(&mut std_rng(g), orders_count);
+            if elements != 0 {
+                orders.generate_uniform(&mut std_rng(g), orders_count);
+            }
             orders
         }
     }

@@ -157,7 +157,8 @@ impl<'a> DenseOrders<'a> for TiedDense {
     }
 
     fn generate_uniform<R: rand::Rng>(&mut self, rng: &mut R, new_orders: usize) {
-        if self.elements == 0 {
+        assert!(self.elements != 0 || new_orders == 0);
+        if self.elements == 0 || new_orders == 0 {
             return;
         }
         let v: &mut [usize] = &mut (0..self.elements).collect::<Vec<usize>>();
@@ -243,7 +244,7 @@ mod tests {
     use quickcheck::{Arbitrary, Gen};
 
     use super::*;
-    use crate::tests::std_rng;
+    use crate::tests::{BoundedArbitrary, std_rng};
 
     /// Returns true if this struct is in a valid state, used for debugging.
     fn valid(td: &TiedDense) -> bool {
@@ -270,16 +271,11 @@ mod tests {
 
     impl Arbitrary for TiedDense {
         fn arbitrary(g: &mut Gen) -> Self {
-            let (mut orders_count, mut elements): (usize, usize) = Arbitrary::arbitrary(g);
-
-            // `Arbitrary` for numbers will generate "problematic" examples such as
-            // `usize::max_value()` and `usize::min_value()` but we'll use them to
-            // allocate vectors so we'll limit them.
-            elements = elements % g.size();
-            orders_count = if elements != 0 { orders_count % g.size() } else { 0 };
-
+            let (orders_count, elements): (usize, usize) = BoundedArbitrary::arbitrary(g);
             let mut orders = TiedDense::new(elements);
-            orders.generate_uniform(&mut std_rng(g), orders_count);
+            if elements != 0 {
+                orders.generate_uniform(&mut std_rng(g), orders_count);
+            }
             orders
         }
     }

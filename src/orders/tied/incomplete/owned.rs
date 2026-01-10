@@ -401,12 +401,14 @@ mod tests {
     use quickcheck::{Arbitrary, Gen};
 
     use super::*;
-    use crate::{Order, OrderRef, tests::std_rng};
+    use crate::{
+        Order, OrderRef,
+        tests::{BoundedArbitrary, std_rng},
+    };
 
     impl Arbitrary for TiedI {
         fn arbitrary(g: &mut Gen) -> Self {
-            // Modulo to avoid problematic values
-            let elements = <usize as Arbitrary>::arbitrary(g) % g.size();
+            let elements: usize = BoundedArbitrary::arbitrary(g);
             TiedI::random(&mut std_rng(g), elements)
         }
 

@@ -161,7 +161,10 @@ mod tests {
     use quickcheck::{Arbitrary, Gen};
 
     use super::*;
-    use crate::{partial_order, tests::std_rng};
+    use crate::{
+        partial_order,
+        tests::{BoundedArbitrary, std_rng},
+    };
 
     fn valid(td: &Tied) -> bool {
         if td.order.len().saturating_sub(1) != td.tied.len() {
@@ -188,13 +191,7 @@ mod tests {
 
     impl Arbitrary for Tied {
         fn arbitrary(g: &mut Gen) -> Self {
-            let mut elements: usize = Arbitrary::arbitrary(g);
-
-            // `Arbitrary` for numbers will generate "problematic" examples such as
-            // `usize::max_value()` and `usize::min_value()` but we'll use them to
-            // allocate vectors so we'll limit them.
-            elements = elements % g.size();
-
+            let elements: usize = BoundedArbitrary::arbitrary(g);
             Tied::random(&mut std_rng(g), elements)
         }
     }

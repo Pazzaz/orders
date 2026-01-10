@@ -168,7 +168,7 @@ mod tests {
     use quickcheck::{Arbitrary, Gen};
 
     use super::*;
-    use crate::tests::std_rng;
+    use crate::tests::{BoundedArbitrary, std_rng};
 
     // Checks if all invariants of the format are valid, used in tests
     fn valid(sd: &SpecificDense) -> bool {
@@ -186,14 +186,7 @@ mod tests {
 
     impl Arbitrary for SpecificDense {
         fn arbitrary(g: &mut Gen) -> Self {
-            let (mut orders_count, mut elements): (usize, usize) = Arbitrary::arbitrary(g);
-
-            // `Arbitrary` for numbers will generate "problematic" examples such as
-            // `usize::max_value()` and `usize::min_value()` but we'll use them to
-            // allocate vectors so we'll limit them.
-            orders_count = orders_count % g.size();
-            elements = elements % g.size();
-
+            let (orders_count, elements): (usize, usize) = BoundedArbitrary::arbitrary(g);
             let mut orders = SpecificDense::new(elements);
             orders.generate_uniform(&mut std_rng(g), orders_count);
             orders

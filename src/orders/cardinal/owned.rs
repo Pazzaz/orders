@@ -88,12 +88,14 @@ mod tests {
     use quickcheck::{Arbitrary, Gen};
 
     use super::*;
-    use crate::{partial_order::tests::valid, tests::std_rng};
+    use crate::{
+        partial_order::tests::valid,
+        tests::{BoundedArbitrary, std_rng},
+    };
 
     impl Arbitrary for Cardinal {
         fn arbitrary(g: &mut Gen) -> Self {
-            // Modulo to avoid problematic values
-            let elements = <usize as Arbitrary>::arbitrary(g) % g.size();
+            let elements = BoundedArbitrary::arbitrary(g);
             let (a, b): (usize, usize) = Arbitrary::arbitrary(g);
             let (min, max) = if b < a { (b, a) } else { (a, b) };
             Cardinal::random(&mut std_rng(g), elements, min, max)

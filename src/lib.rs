@@ -142,6 +142,46 @@ mod tests {
         StdRng::from_seed(seed)
     }
 
+    /// Like [`Arbitrary`], but generates numerical values less than `g.size()`.
+    pub trait BoundedArbitrary: Clone + 'static {
+        fn arbitrary(g: &mut Gen) -> Self;
+    }
+
+    impl BoundedArbitrary for usize {
+        fn arbitrary(g: &mut Gen) -> Self {
+            let n: Self = Arbitrary::arbitrary(g);
+            n % g.size()
+        }
+    }
+
+    // Generate elementwise for tuples
+    impl<T: BoundedArbitrary> BoundedArbitrary for (T, T) {
+        fn arbitrary(g: &mut Gen) -> Self {
+            (BoundedArbitrary::arbitrary(g), BoundedArbitrary::arbitrary(g))
+        }
+    }
+
+    impl<T: BoundedArbitrary> BoundedArbitrary for (T, T, T) {
+        fn arbitrary(g: &mut Gen) -> Self {
+            (
+                BoundedArbitrary::arbitrary(g),
+                BoundedArbitrary::arbitrary(g),
+                BoundedArbitrary::arbitrary(g),
+            )
+        }
+    }
+
+    impl<T: BoundedArbitrary> BoundedArbitrary for (T, T, T, T) {
+        fn arbitrary(g: &mut Gen) -> Self {
+            (
+                BoundedArbitrary::arbitrary(g),
+                BoundedArbitrary::arbitrary(g),
+                BoundedArbitrary::arbitrary(g),
+                BoundedArbitrary::arbitrary(g),
+            )
+        }
+    }
+
     #[quickcheck]
     fn sort_using_arbitrary(a: Vec<usize>, b: Vec<usize>) -> bool {
         let mut aa = a;

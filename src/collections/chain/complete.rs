@@ -118,7 +118,7 @@ mod tests {
     use quickcheck::{Arbitrary, Gen};
 
     use super::*;
-    use crate::tests::std_rng;
+    use crate::tests::{BoundedArbitrary, std_rng};
 
     // Check if a given total ranking is valid, i.e.
     // 1. len(orders) % elements == 0
@@ -153,13 +153,7 @@ mod tests {
     }
     impl Arbitrary for ChainDense {
         fn arbitrary(g: &mut Gen) -> Self {
-            let (mut orders_count, mut elements): (usize, usize) = Arbitrary::arbitrary(g);
-
-            // `Arbitrary` for numbers will generate "problematic" examples such as
-            // `usize::max_value()` and `usize::min_value()` but we'll use them to
-            // allocate vectors so we'll limit them.
-            orders_count = orders_count % g.size();
-            elements = elements % g.size();
+            let (orders_count, elements): (usize, usize) = BoundedArbitrary::arbitrary(g);
 
             let mut orders = ChainDense::new(elements);
             orders.generate_uniform(&mut std_rng(g), orders_count);

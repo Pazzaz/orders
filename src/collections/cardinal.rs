@@ -327,7 +327,7 @@ mod tests {
     use quickcheck::{Arbitrary, Gen};
 
     use super::*;
-    use crate::tests::std_rng;
+    use crate::tests::{BoundedArbitrary, std_rng};
 
     fn valid(cd: &CardinalDense) -> bool {
         if cd.elements == 0 {
@@ -349,16 +349,8 @@ mod tests {
 
     impl Arbitrary for CardinalDense {
         fn arbitrary(g: &mut Gen) -> Self {
-            let (mut orders_count, mut elements, mut min, mut max): (usize, usize, usize, usize) =
-                Arbitrary::arbitrary(g);
-
-            // `Arbitrary` for numbers will generate "problematic" examples such as
-            // `usize::max_value()` and `usize::min_value()` but we'll use them to
-            // allocate vectors so we'll limit them.
-            orders_count = orders_count % g.size();
-            elements = elements % g.size();
-            min = min % g.size();
-            max = max % g.size();
+            let (orders_count, elements, mut min, mut max): (usize, usize, usize, usize) =
+                BoundedArbitrary::arbitrary(g);
 
             if min > max {
                 std::mem::swap(&mut min, &mut max);

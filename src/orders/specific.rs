@@ -69,16 +69,17 @@ mod tests {
     use quickcheck::{Arbitrary, Gen};
 
     use super::*;
-    use crate::{partial_order::tests::valid, tests::std_rng};
+    use crate::{
+        partial_order::tests::valid,
+        tests::{BoundedArbitrary, std_rng},
+    };
 
     impl Arbitrary for Specific {
         fn arbitrary(g: &mut Gen) -> Self {
-            // Generate a random number of elements
-            let v: usize = <usize as Arbitrary>::arbitrary(g);
+            let v: usize = BoundedArbitrary::arbitrary(g);
 
-            // Modulo it by `size` to avoid problematic values
-            // and add 1 ot avoid 0
-            let elements = (v % g.size()).saturating_add(1);
+            // Increase by 1 to avoid 0
+            let elements = v.saturating_add(1);
 
             // Then randomly choose the specific value
             Specific::random(&mut std_rng(g), elements)

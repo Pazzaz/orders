@@ -113,12 +113,14 @@ mod tests {
     use quickcheck::{Arbitrary, Gen};
 
     use super::*;
-    use crate::{partial_order::tests::valid, tests::std_rng};
+    use crate::{
+        partial_order::tests::valid,
+        tests::{BoundedArbitrary, std_rng},
+    };
 
     impl Arbitrary for ChainI {
         fn arbitrary(g: &mut Gen) -> Self {
-            // Modulo to avoid problematic values
-            let elements = <usize as Arbitrary>::arbitrary(g) % g.size();
+            let elements: usize = BoundedArbitrary::arbitrary(g);
             ChainI::random(&mut std_rng(g), elements)
         }
 
