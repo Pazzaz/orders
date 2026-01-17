@@ -10,9 +10,7 @@ use crate::{
     orders::tied::TiedRef,
 };
 
-/// TOC - Orders with Ties - Complete List
-///
-/// A packed list of complete orders with ties, with related methods.
+/// Packed list of [`Tied`](crate::tied::Tied)
 #[derive(Debug)]
 pub struct TiedDense {
     // Has length orders_count * elements

@@ -10,11 +10,7 @@ use crate::{
     specific::Specific,
 };
 
-/// A collection of elements.
-///
-/// Collection of orders where every order is a specific element. Some would say
-/// that this isn't an order at all, but it's useful to model a collection of
-/// votes in voting theory.
+/// Packed list of [`Specific`](crate::specific::Specific)
 ///
 /// ```
 /// use orders::collections::{DenseOrders, SpecificDense};

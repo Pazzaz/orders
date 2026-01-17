@@ -9,6 +9,7 @@ use crate::{
     pairwise_lt,
 };
 
+/// Packed list of [`Binary`](crate::binary::Binary)
 #[derive(Debug, PartialEq, Eq)]
 pub struct BinaryDense {
     pub orders: Vec<bool>,

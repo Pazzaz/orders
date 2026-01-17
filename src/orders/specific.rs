@@ -2,6 +2,10 @@ use rand::Rng;
 
 use crate::{Order, OrderOwned, OrderRef, partial_order::PartialOrderManual};
 
+/// Order where a single element is elevated
+///
+/// Some would say that this isn't an order at all, but it's useful to model a
+/// collection of votes in voting theory.
 #[derive(Debug, Clone, Copy)]
 pub struct Specific {
     pub(crate) value: usize,

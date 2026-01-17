@@ -1,6 +1,11 @@
-use crate::{chain::ChainRef, tied::TiedIRef, unique_and_bounded};
+use crate::{
+    OrderRef,
+    chain::{ChainI, ChainRef},
+    tied::TiedIRef,
+    unique_and_bounded,
+};
 
-/// A possibly incomplete order without any ties
+/// Reference to a [`ChainI`]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct ChainIRef<'a> {
     pub(crate) elements: usize,
@@ -59,6 +64,14 @@ impl<'a> ChainIRef<'a> {
 
     pub fn to_tied(self, tied: &'a [bool]) -> TiedIRef<'a> {
         TiedIRef::new(self.elements, self.order, tied)
+    }
+}
+
+impl OrderRef for ChainIRef<'_> {
+    type Owned = ChainI;
+
+    fn to_owned(self) -> Self::Owned {
+        ChainI::new(self.elements, self.order.to_vec())
     }
 }
 

@@ -10,10 +10,7 @@ use crate::{
     tied::{Tied, TiedI, TiedIRef},
 };
 
-/// TOI - Orders with Ties - Incomplete List
-///
-/// A packed list of (possibly incomplete) orders with ties, with related
-/// methods. One can see it as a `Vec<TiedRank>`, but more efficient.
+/// Packed list of [`TiedI`](crate::tied::TiedI)
 #[derive(Debug, PartialEq, Eq)]
 pub struct TiedIDense {
     // Has length count * elements

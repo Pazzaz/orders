@@ -4,13 +4,13 @@ use rand::{
 };
 
 use crate::{
-    Order, OrderOwned, OrderRef,
+    Order, OrderOwned,
     chain::{Chain, ChainIRef},
     partial_order::{PartialOrder, PartialOrderManual},
     unique_and_bounded,
 };
 
-/// A possibly incomplete order without any ties, owned version of [`ChainIRef`]
+/// Incomplete version of [`Chain`]
 #[derive(Debug, PartialEq, Eq)]
 pub struct ChainI {
     pub(crate) elements: usize,
@@ -97,14 +97,6 @@ impl<'a> OrderOwned<'a> for ChainI {
 
     fn as_ref(&'a self) -> Self::Ref {
         ChainIRef { elements: self.elements, order: &self.order }
-    }
-}
-
-impl OrderRef for ChainIRef<'_> {
-    type Owned = ChainI;
-
-    fn to_owned(self) -> Self::Owned {
-        ChainI::new(self.elements, self.order.to_vec())
     }
 }
 

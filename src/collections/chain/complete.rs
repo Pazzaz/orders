@@ -8,6 +8,7 @@ use crate::{
     get_order, pairwise_lt,
 };
 
+/// Packed list of [`Chain`](crate::chain::Chain)
 #[derive(Debug, PartialEq, Eq)]
 pub struct ChainDense {
     pub(crate) orders: Vec<usize>,

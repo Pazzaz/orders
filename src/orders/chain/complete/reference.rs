@@ -4,6 +4,7 @@ use crate::{
     unique_and_bounded,
 };
 
+/// Reference to a [`Chain`]
 #[derive(Debug, Clone, Copy)]
 pub struct ChainRef<'a> {
     pub(crate) order: &'a [usize],

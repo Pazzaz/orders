@@ -8,9 +8,7 @@ use crate::{
     collections::{AddError, DenseOrders, chain::ChainDense},
 };
 
-/// SOI - Strict Orders - Incomplete List
-///
-/// A packed list of (possibly incomplete) strict orders, with related methods.
+/// Packed list of [`ChainI`](crate::chain::ChainI)
 #[derive(Debug)]
 pub struct ChainIDense {
     pub(crate) orders: Vec<usize>,

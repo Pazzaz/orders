@@ -9,7 +9,7 @@ use crate::{
     unique_and_bounded,
 };
 
-/// An owned total order.
+/// An order without any ties
 ///
 /// Consists of a list of elements, arranged from highest to lowest elements,
 /// ordering all elements.

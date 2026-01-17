@@ -8,6 +8,7 @@ use crate::{
     pairwise_lt,
 };
 
+/// Packed list of [`Cardinal`](crate::cardinal::Cardinal)
 #[derive(Debug, PartialEq, Eq)]
 pub struct CardinalDense {
     pub(crate) orders: Vec<usize>,
