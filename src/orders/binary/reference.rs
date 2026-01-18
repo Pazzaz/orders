@@ -1,6 +1,7 @@
 use super::Binary;
 use crate::OrderRef;
 
+/// Reference to a [`Binary`]
 pub struct BinaryRef<'a> {
     pub(crate) values: &'a [bool],
 }

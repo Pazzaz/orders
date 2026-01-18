@@ -7,6 +7,7 @@ use crate::{
     specific::Specific,
 };
 
+/// An order with two groups
 #[derive(Debug)]
 pub struct Binary {
     pub(super) values: Vec<bool>,

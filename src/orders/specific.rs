@@ -2,7 +2,7 @@ use rand::Rng;
 
 use crate::{Order, OrderOwned, OrderRef, partial_order::PartialOrderManual};
 
-/// Order where a single element is elevated
+/// Incomplete order with a single element
 ///
 /// Some would say that this isn't an order at all, but it's useful to model a
 /// collection of votes in voting theory.

@@ -8,6 +8,7 @@ use crate::{
     unique_and_bounded,
 };
 
+/// Reference to [`TiedI`]
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub struct TiedIRef<'a> {
     /// The total number of elements this ranking concerns, some of them may

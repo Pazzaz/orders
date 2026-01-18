@@ -1,10 +1,8 @@
 //! # Chains
 //!
 //! A chain is an order of all elements where every element is comparable,
-//! ordered from largest to smallest. A chain is like a total order, but only
-//! orders a subset of all elements.
-//!
-//! Chains are also called total orders, linear orders or chain orders.
+//! ordered from largest to smallest. Chains are also called total orders,
+//! linear orders or chain orders.
 //!
 //! |               | **Complete**  | **Incomplete** |
 //! | ------------- | ------------- | -------------  |

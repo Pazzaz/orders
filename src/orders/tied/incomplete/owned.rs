@@ -12,7 +12,7 @@ use crate::{
     unique_and_bounded,
 };
 
-/// An order with possible ties.
+/// Incomplete version of [`Tied`]
 #[derive(Debug, PartialEq, Eq, Default, PartialOrd, serde::Deserialize, serde::Serialize)]
 pub struct TiedI {
     pub(crate) elements: usize,

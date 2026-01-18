@@ -5,6 +5,7 @@ use crate::{
     unique_and_bounded,
 };
 
+/// Reference to [`Tied`]
 pub struct TiedRef<'a> {
     order_tied: SplitRef<'a>,
 }

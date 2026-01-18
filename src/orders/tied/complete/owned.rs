@@ -8,6 +8,7 @@ use crate::{
     unique_and_bounded,
 };
 
+/// An order with possible ties
 #[derive(Debug, PartialEq, Eq)]
 pub struct Tied {
     order: Vec<usize>,
