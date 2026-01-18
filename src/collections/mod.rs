@@ -43,8 +43,14 @@ pub trait DenseOrders<'a> {
     fn generate_uniform<R: Rng>(&mut self, rng: &mut R, new_orders: usize);
 }
 
+/// Error used when pushing to collection
+///
+/// Returned by [`DenseOrders::push`].
 #[derive(Debug)]
 pub enum AddError {
+    /// Pushed order has the wrong number of elements compared to the collection
     Elements,
+
+    /// Failed to allocate memory for pushed order
     Alloc,
 }
